@@ -21,7 +21,7 @@ import type {
 /**
  * Builds a field-level zod validator from a field schema definition.
  */
-export function buildFieldValidator(field: FieldSchema): z.ZodTypeAny {
+export function buildFieldValidator(field: FieldSchema): z.ZodType {
   switch (field.type) {
     case 'text':
       return optionalize(buildTextValidator(field), field);
@@ -57,8 +57,8 @@ export function buildFieldValidator(field: FieldSchema): z.ZodTypeAny {
 /**
  * Builds a step-level zod object validator from step field schemas.
  */
-export function buildStepValidator(step: StepSchema): z.ZodObject<Record<string, z.ZodTypeAny>> {
-  const shape: Record<string, z.ZodTypeAny> = {};
+export function buildStepValidator(step: StepSchema): z.ZodObject<Record<string, z.ZodType>> {
+  const shape: Record<string, z.ZodType> = {};
 
   for (const field of step.fields) {
     shape[field.key] = buildFieldValidator(field);
@@ -70,8 +70,8 @@ export function buildStepValidator(step: StepSchema): z.ZodObject<Record<string,
 /**
  * Builds a full form-level zod object validator from all schema fields.
  */
-export function buildFormValidator(schema: FormSchema): z.ZodObject<Record<string, z.ZodTypeAny>> {
-  const shape: Record<string, z.ZodTypeAny> = {};
+export function buildFormValidator(schema: FormSchema): z.ZodObject<Record<string, z.ZodType>> {
+  const shape: Record<string, z.ZodType> = {};
 
   for (const step of schema.steps) {
     for (const field of step.fields) {
@@ -127,18 +127,15 @@ function buildTextAreaValidator(field: TextAreaFieldSchema): z.ZodString {
   return schema;
 }
 
-function buildEmailValidator(field: EmailFieldSchema): z.ZodString {
-  let schema = z
-    .string({
-      error: field.messages?.invalid ?? `${field.label} is invalid`,
-    })
-    .email(field.messages?.invalid ?? `${field.label} must be a valid email`);
+function buildEmailValidator(field: EmailFieldSchema): z.ZodType {
+  const invalidMessage = field.messages?.invalid ?? `${field.label} must be a valid email`;
+  const emailSchema = z.email({ error: invalidMessage });
 
   if (field.required) {
-    schema = schema.min(1, field.messages?.required ?? `${field.label} is required`);
+    return emailSchema.min(1, field.messages?.required ?? `${field.label} is required`);
   }
 
-  return schema;
+  return emailSchema;
 }
 
 function buildPhoneValidator(field: PhoneFieldSchema): z.ZodString {
@@ -156,7 +153,7 @@ function buildPhoneValidator(field: PhoneFieldSchema): z.ZodString {
   return schema;
 }
 
-function buildNumberValidator(field: NumberFieldSchema): z.ZodTypeAny {
+function buildNumberValidator(field: NumberFieldSchema): z.ZodType {
   let schema = z.coerce.number({
     error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
@@ -172,26 +169,22 @@ function buildNumberValidator(field: NumberFieldSchema): z.ZodTypeAny {
   return schema;
 }
 
-function buildCurrencyValidator(field: CurrencyFieldSchema): z.ZodTypeAny {
-  let schema = z.coerce.number({
-    error: field.messages?.invalid ?? `${field.label} is invalid`,
-  });
-
-  schema = schema.min(field.min, field.messages?.min ?? `${field.label} is too small`);
-  schema = schema.max(field.max, field.messages?.max ?? `${field.label} is too large`);
-
-  return schema;
+function buildCurrencyValidator(field: CurrencyFieldSchema): z.ZodType {
+  return z.coerce
+    .number({ error: field.messages?.invalid ?? `${field.label} is invalid` })
+    .min(field.min, field.messages?.min ?? `${field.label} is too small`)
+    .max(field.max, field.messages?.max ?? `${field.label} is too large`);
 }
 
-function buildSelectValidator(field: SelectFieldSchema): z.ZodTypeAny {
-  const options = asEnumValues(field.options.map((option) => option.value));
+function buildSelectValidator(field: SelectFieldSchema): z.ZodType {
+  const options = field.options.map((option) => option.value) as [string, ...string[]];
   return z.enum(options, {
     error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
 }
 
-function buildMultiSelectValidator(field: MultiSelectFieldSchema): z.ZodTypeAny {
-  const options = asEnumValues(field.options.map((option) => option.value));
+function buildMultiSelectValidator(field: MultiSelectFieldSchema): z.ZodType {
+  const options = field.options.map((option) => option.value) as [string, ...string[]];
   let schema = z.array(
     z.enum(options, {
       error: field.messages?.invalid ?? `${field.label} contains an invalid value`,
@@ -215,7 +208,7 @@ function buildMultiSelectValidator(field: MultiSelectFieldSchema): z.ZodTypeAny 
   return schema;
 }
 
-function buildDateValidator(field: DateFieldSchema): z.ZodTypeAny {
+function buildDateValidator(field: DateFieldSchema): z.ZodType {
   let schema = z
     .string({
       error: field.messages?.invalid ?? `${field.label} is invalid`,
@@ -244,7 +237,7 @@ function buildDateValidator(field: DateFieldSchema): z.ZodTypeAny {
   return schema;
 }
 
-function buildFileValidator(field: FileUploadFieldSchema): z.ZodTypeAny {
+function buildFileValidator(field: FileUploadFieldSchema): z.ZodType {
   const fileObject = z.object({
     name: z.string(),
     size: z.number().nonnegative(),
@@ -254,7 +247,7 @@ function buildFileValidator(field: FileUploadFieldSchema): z.ZodTypeAny {
   const validateSingle = fileObject.superRefine((value, ctx) => {
     if (field.maxSizeMb !== undefined && value.size > field.maxSizeMb * 1024 * 1024) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: field.messages?.max ?? `${field.label} exceeds max file size`,
       });
     }
@@ -265,7 +258,7 @@ function buildFileValidator(field: FileUploadFieldSchema): z.ZodTypeAny {
       !matchesAcceptedType(value.name, value.type, field.accept)
     ) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: field.messages?.invalid ?? `${field.label} has an unsupported file type`,
       });
     }
@@ -278,7 +271,7 @@ function buildFileValidator(field: FileUploadFieldSchema): z.ZodTypeAny {
   return validateSingle;
 }
 
-function buildAddressValidator(field: AddressFieldSchema): z.ZodTypeAny {
+function buildAddressValidator(field: AddressFieldSchema): z.ZodType {
   const requiredMessage = field.messages?.required ?? `${field.label} is required`;
 
   const line1 = field.required ? z.string().min(1, requiredMessage) : z.string().optional();
@@ -297,7 +290,7 @@ function buildAddressValidator(field: AddressFieldSchema): z.ZodTypeAny {
   });
 }
 
-function buildCheckboxValidator(field: CheckboxFieldSchema): z.ZodTypeAny {
+function buildCheckboxValidator(field: CheckboxFieldSchema): z.ZodType {
   const schema = z.boolean({
     error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
@@ -311,22 +304,12 @@ function buildCheckboxValidator(field: CheckboxFieldSchema): z.ZodTypeAny {
   });
 }
 
-function optionalize<T extends z.ZodTypeAny>(schema: T, field: FieldSchema): z.ZodTypeAny {
+function optionalize<T extends z.ZodType>(schema: T, field: FieldSchema): z.ZodType {
   if (field.required) {
     return schema;
   }
 
   return schema.optional();
-}
-
-function asEnumValues(values: string[]): [string, ...string[]] {
-  const first = values[0];
-  if (!first) {
-    return ['__invalid__'];
-  }
-
-  const rest = values.slice(1);
-  return [first, ...rest];
 }
 
 function matchesAcceptedType(fileName: string, mimeType: string, accepted: string[]): boolean {

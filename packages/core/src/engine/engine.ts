@@ -1,4 +1,4 @@
-import type { ZodTypeAny } from 'zod';
+import type { ZodType } from 'zod';
 
 import type { FieldSchema, FormSchema, StepSchema } from '../schema/types';
 import { buildFieldValidator } from '../validation/validator';
@@ -294,7 +294,7 @@ export function createFormFlowEngine(
 function createSnapshot(
   schema: FormSchema,
   internalState: InternalState,
-  validators: Record<string, ZodTypeAny>,
+  validators: Record<string, ZodType>,
 ): FormFlowState {
   const visibleSteps = computeVisibleSteps(schema.steps, internalState.values);
   const currentStep = resolveCurrentStep(visibleSteps, internalState.currentStepIndex);
@@ -321,7 +321,7 @@ function createSnapshot(
 function stateMachineValidateCurrentStep(
   schema: FormSchema,
   internalState: InternalState,
-  validators: Record<string, ZodTypeAny>,
+  validators: Record<string, ZodType>,
 ): { valid: boolean; state: InternalState } {
   const snapshot = createSnapshot(schema, internalState, validators);
   const nextErrors = { ...internalState.errors };
@@ -364,7 +364,7 @@ function buildFieldMap(schema: FormSchema): Record<string, FieldSchema> {
   return map;
 }
 
-function buildValidatorMap(fieldMap: Record<string, FieldSchema>): Record<string, ZodTypeAny> {
+function buildValidatorMap(fieldMap: Record<string, FieldSchema>): Record<string, ZodType> {
   return Object.fromEntries(
     Object.entries(fieldMap).map(([key, field]) => [key, buildFieldValidator(field)]),
   );
@@ -373,7 +373,7 @@ function buildValidatorMap(fieldMap: Record<string, FieldSchema>): Record<string
 function validateFieldValue(
   field: FieldSchema,
   value: unknown,
-  validator: ZodTypeAny | undefined,
+  validator: ZodType | undefined,
 ): string | null {
   if (field.type === 'info') {
     return null;
@@ -446,7 +446,7 @@ function resolveCurrentStep(
 function computeCompletedSteps(
   visibleSteps: StepSchema[],
   values: Record<string, unknown>,
-  validators: Record<string, ZodTypeAny>,
+  validators: Record<string, ZodType>,
 ): Set<string> {
   const completed = new Set<string>();
 

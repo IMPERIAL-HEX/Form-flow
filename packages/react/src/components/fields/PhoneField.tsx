@@ -1,33 +1,36 @@
-import { forwardRef } from 'react';
-
 import type { PhoneFieldSchema } from '@formflow/core';
 
 import { FieldChrome, getAriaDescribedBy, sharedInputStyle } from './shared';
 import type { FieldComponentProps } from './types';
 
-interface PhoneValue {
-  countryCode: string;
-  number: string;
-}
+const COUNTRY_CODES = ['+44', '+1', '+61', '+91'] as const;
 
-export const PhoneField = forwardRef<HTMLInputElement, FieldComponentProps>(function PhoneField(
-  { field, value, error, onChange, onBlur },
-  ref,
-) {
+export function PhoneField({
+  field,
+  value,
+  error,
+  onChange,
+  onBlur,
+}: FieldComponentProps): React.ReactNode {
   const phoneField = field as PhoneFieldSchema;
-  const phoneValue = normalizePhoneValue(value, phoneField.defaultCountryCode);
+  const { countryCode, number } = splitPhoneValue(value, phoneField.defaultCountryCode);
+
+  const emit = (code: string, next: string): void => {
+    onChange(next ? `${code} ${next}`.trim() : '');
+  };
 
   return (
     <FieldChrome field={field} error={error}>
       {({ inputId, descriptionId, errorId }) => (
         <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '0.5rem' }}>
           <select
-            value={phoneValue.countryCode}
-            onChange={(event) => onChange({ ...phoneValue, countryCode: event.target.value })}
+            value={countryCode}
+            onChange={(event) => emit(event.target.value, number)}
             onBlur={onBlur}
             style={sharedInputStyle}
+            aria-label="Country code"
           >
-            {['+44', '+1', '+61', '+91'].map((code) => (
+            {COUNTRY_CODES.map((code) => (
               <option key={code} value={code}>
                 {code}
               </option>
@@ -36,9 +39,8 @@ export const PhoneField = forwardRef<HTMLInputElement, FieldComponentProps>(func
 
           <input
             id={inputId}
-            ref={ref}
             type="tel"
-            value={phoneValue.number}
+            value={number}
             placeholder={phoneField.placeholder ?? '7700 900123'}
             disabled={phoneField.disabled}
             readOnly={phoneField.readOnly}
@@ -51,28 +53,30 @@ export const PhoneField = forwardRef<HTMLInputElement, FieldComponentProps>(func
               Boolean(error),
             )}
             onBlur={onBlur}
-            onChange={(event) => onChange({ ...phoneValue, number: event.target.value })}
+            onChange={(event) => emit(countryCode, event.target.value)}
             style={sharedInputStyle}
           />
         </div>
       )}
     </FieldChrome>
   );
-});
+}
 
-function normalizePhoneValue(value: unknown, defaultCountryCode?: string): PhoneValue {
-  if (value && typeof value === 'object') {
-    const record = value as Record<string, unknown>;
-    const code =
-      typeof record.countryCode === 'string' ? record.countryCode : (defaultCountryCode ?? '+44');
-    const number = typeof record.number === 'string' ? record.number : '';
+function splitPhoneValue(
+  value: unknown,
+  defaultCountryCode?: string,
+): { countryCode: string; number: string } {
+  const fallbackCode = defaultCountryCode ?? '+44';
 
-    return { countryCode: code, number };
+  if (typeof value !== 'string' || value.length === 0) {
+    return { countryCode: fallbackCode, number: '' };
   }
 
-  if (typeof value === 'string') {
-    return { countryCode: defaultCountryCode ?? '+44', number: value };
+  for (const code of COUNTRY_CODES) {
+    if (value.startsWith(code)) {
+      return { countryCode: code, number: value.slice(code.length).trimStart() };
+    }
   }
 
-  return { countryCode: defaultCountryCode ?? '+44', number: '' };
+  return { countryCode: fallbackCode, number: value };
 }
