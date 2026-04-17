@@ -70,11 +70,11 @@ a {
 }
 
 .ff-home {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 2.5rem 1rem 3rem;
   display: grid;
-  gap: 1.5rem;
+  gap: 1.2rem;
 }
 
 .ff-home-hero {
@@ -96,6 +96,28 @@ a {
   color: #1f2937;
 }
 
+.ff-section {
+  border-radius: 1rem;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.ff-section-header {
+  margin-bottom: 0.8rem;
+}
+
+.ff-section-header h2 {
+  margin: 0.22rem 0 0.36rem;
+  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+}
+
+.ff-section-header p {
+  margin: 0;
+  color: #4b5563;
+  max-width: 74ch;
+}
+
 .ff-home-actions {
   margin-top: 1rem;
   display: flex;
@@ -107,6 +129,130 @@ a {
   display: grid;
   gap: 0.9rem;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.ff-feature-grid {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.ff-feature-grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.ff-feature-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.ff-feature-card {
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  background: #ffffff;
+  padding: 0.8rem;
+}
+
+.ff-feature-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.ff-feature-card p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.92rem;
+}
+
+.ff-feature-content {
+  margin-top: 0.65rem;
+}
+
+.ff-code-block {
+  margin: 0;
+  padding: 0.72rem;
+  border-radius: 0.65rem;
+  overflow: auto;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  line-height: 1.42;
+}
+
+.ff-live-demo-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  align-items: start;
+}
+
+.ff-live-demo-form {
+  min-width: 0;
+}
+
+.ff-live-demo-payload {
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  background: #f8fafc;
+  padding: 0.8rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.ff-live-demo-payload h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.ff-live-demo-payload p {
+  margin: 0.35rem 0 0.55rem;
+  color: #4b5563;
+  font-size: 0.82rem;
+}
+
+.ff-live-demo-payload pre {
+  margin: 0;
+  padding: 0.65rem;
+  border-radius: 0.6rem;
+  overflow: auto;
+  background: #111827;
+  color: #e5e7eb;
+  font-size: 0.76rem;
+}
+
+.ff-schema-accordion {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ff-schema-item {
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  padding: 0.55rem;
+}
+
+.ff-schema-item[open] {
+  background: #f8fafc;
+}
+
+.ff-schema-item summary {
+  cursor: pointer;
+  display: grid;
+  gap: 0.2rem;
+  list-style: none;
+}
+
+.ff-schema-item summary span {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.ff-schema-item summary small {
+  color: #4b5563;
+  font-size: 0.8rem;
+}
+
+.ff-schema-item .ff-code-block {
+  margin-top: 0.5rem;
 }
 
 .ff-home-card {
@@ -343,6 +489,14 @@ a {
 @media (max-width: 1080px) {
   .ff-playground-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ff-live-demo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ff-live-demo-payload {
+    position: static;
   }
 
   .ff-editor {
