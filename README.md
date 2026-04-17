@@ -174,10 +174,10 @@ Current branch focus: final landing and release polish.
 1. Complete: headless core engine and tests
 2. Complete: React SDK renderer, fields, layouts, and hooks
 3. Complete: demo flow, embed mode, playground, and API routes
-4. In progress: final landing/docs polish and release narrative tightening
+4. Complete: final landing/docs polish and release narrative tightening
+5. In progress: final review and merge-to-main step
 
 Remaining before done:
 
-1. Complete final landing copy and visual polish pass
-2. Run one final quality-gate sweep on the release branch
-3. Merge to main after review
+1. Run one final quality-gate sweep on the release branch HEAD
+2. Merge to main after review

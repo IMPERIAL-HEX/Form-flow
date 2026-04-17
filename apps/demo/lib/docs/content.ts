@@ -174,22 +174,21 @@ export const deliveryStages: DeliveryStage[] = [
   },
   {
     phase: 'Landing and docs polish',
-    status: 'in-progress',
+    status: 'complete',
     summary:
-      'Public narrative, delivery checklist, and UX polish are being tightened for release readability.',
+      'Public narrative, delivery checklist, accessibility improvements, and UX polish are complete.',
     artifacts: ['apps/demo/app/page.tsx', 'apps/demo/app/components/home', 'README.md'],
   },
   {
     phase: 'Final release pass',
-    status: 'next',
+    status: 'in-progress',
     summary:
-      'Final smoke checks, release notes quality review, and PR merge to main remain before closure.',
+      'Quality-gate sweep is passing; PR review and merge to main remain before closure.',
     artifacts: ['.github/workflows/quality-gates.yml', 'ARCHITECTURE_DECISIONS.md'],
   },
 ];
 
 export const remainingChecklist: string[] = [
-  'Complete final landing copy and visual polish pass.',
-  'Run final full quality gate sweep before PR merge.',
+  'Run and verify one final full quality gate sweep on release HEAD.',
   'Merge branch to main after reviewer approval.',
 ];
