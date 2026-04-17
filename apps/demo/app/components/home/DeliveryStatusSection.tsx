@@ -19,7 +19,7 @@ export function DeliveryStatusSection(): React.ReactNode {
     <SectionFrame
       id="delivery-status"
       eyebrow="Delivery Status"
-      title="Current project delivery state"
+      title="Where the project stands right now"
       description="A branch-level snapshot of what is complete and what remains before merge."
     >
       <div className="ff-status-grid">

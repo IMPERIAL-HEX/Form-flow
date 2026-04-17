@@ -181,15 +181,15 @@ It is intentionally built as a portfolio-quality architecture that can evolve in
 
 ## Project Status
 
-Current branch focus: release readiness and landing/docs polish.
+Current branch focus: final landing and release polish.
 
-1. Complete: core engine implementation and coverage-oriented tests
-2. Complete: React SDK renderer, layouts, and field component surface
-3. Complete: demo, playground, embed route, and API endpoints
-4. Complete: landing/docs expansion with delivery status visibility and FAQ
-5. In progress: final PR review and merge into main
+1. Complete: headless core engine and tests
+2. Complete: React SDK renderer, fields, layouts, and hooks
+3. Complete: demo flow, embed mode, playground, and API routes
+4. Complete: final landing/docs polish and release narrative tightening
+5. In progress: final review and merge-to-main step
 
 Remaining before done:
 
-1. Run final quality-gate sweep on branch HEAD
-2. Merge branch to main after reviewer approval
+1. Run one final quality-gate sweep on the release branch HEAD
+2. Merge to main after review

@@ -28,13 +28,13 @@ a {
 
 .ff-skip-link {
   position: absolute;
-  top: -2.5rem;
   left: 0.75rem;
+  top: -2.5rem;
   z-index: 1000;
   background: #0f172a;
   color: #ffffff;
-  border-radius: 0.55rem;
   padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
   text-decoration: none;
   transition: top 140ms ease;
 }
@@ -302,31 +302,6 @@ a {
   margin-top: 0.5rem;
 }
 
-.ff-faq-grid {
-  display: grid;
-  gap: 0.6rem;
-}
-
-.ff-faq-item {
-  border: 1px solid #d1d5db;
-  border-radius: 0.8rem;
-  background: #ffffff;
-  padding: 0.7rem;
-}
-
-.ff-faq-item summary {
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.92rem;
-}
-
-.ff-faq-item p {
-  margin: 0.55rem 0 0;
-  color: #4b5563;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
 .ff-status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -343,26 +318,13 @@ a {
 .ff-status-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 0.5rem;
+  align-items: flex-start;
 }
 
 .ff-status-card-header h3 {
   margin: 0;
   font-size: 0.98rem;
-}
-
-.ff-status-card p {
-  margin: 0.45rem 0 0.55rem;
-  color: #4b5563;
-  font-size: 0.9rem;
-}
-
-.ff-status-card ul,
-.ff-status-next ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  color: #374151;
 }
 
 .ff-status-pill {
@@ -400,6 +362,19 @@ a {
 .ff-status-next h3 {
   margin: 0 0 0.45rem;
   font-size: 0.98rem;
+}
+
+.ff-status-next ul,
+.ff-status-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: #374151;
+}
+
+.ff-status-card p {
+  margin: 0.45rem 0 0.55rem;
+  color: #4b5563;
+  font-size: 0.9rem;
 }
 
 .ff-home-card {

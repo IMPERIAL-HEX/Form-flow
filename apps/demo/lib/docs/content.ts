@@ -246,36 +246,39 @@ export const deliveryStages: DeliveryStage[] = [
   {
     phase: 'Core engine',
     status: 'complete',
-    summary: 'Schema parser, condition evaluation, validation map, and flow engine are complete.',
+    summary: 'Schema parsing, condition evaluation, validation, and step state machine are stable.',
     artifacts: ['packages/core', 'packages/core/__tests__'],
   },
   {
     phase: 'React SDK',
     status: 'complete',
-    summary: 'Renderer, field registry, layouts, and headless hook integration are complete.',
+    summary:
+      'Renderer, field registry, layout shells, and hook-based headless integration are available.',
     artifacts: ['packages/react', 'packages/react/__tests__'],
   },
   {
-    phase: 'Demo and APIs',
+    phase: 'Demo + APIs',
     status: 'complete',
-    summary: 'Hosted demo, playground, embed route, and API endpoints are complete.',
-    artifacts: ['apps/demo/app/demo', 'apps/demo/app/playground', 'apps/demo/app/api'],
+    summary:
+      'Hosted flow, schema endpoint, submissions endpoint, embed mode, and playground are live.',
+    artifacts: ['apps/demo/app/demo', 'apps/demo/app/api', 'apps/demo/app/embed'],
   },
   {
-    phase: 'Landing and docs',
+    phase: 'Landing and docs polish',
     status: 'complete',
-    summary: 'Public narrative, usage references, accessibility touches, and progress sections are complete.',
+    summary:
+      'Public narrative, delivery checklist, accessibility improvements, and UX polish are complete.',
     artifacts: ['apps/demo/app/page.tsx', 'apps/demo/app/components/home', 'README.md'],
   },
   {
-    phase: 'Release merge',
+    phase: 'Final release pass',
     status: 'in-progress',
-    summary: 'Final quality gate pass and PR merge to main are pending.',
+    summary: 'Quality-gate sweep is passing; PR review and merge to main remain before closure.',
     artifacts: ['.github/workflows/quality-gates.yml', 'ARCHITECTURE_DECISIONS.md'],
   },
 ];
 
 export const remainingChecklist: string[] = [
-  'Run one final full quality gate sweep on branch HEAD.',
+  'Run and verify one final full quality gate sweep on release HEAD.',
   'Merge branch to main after reviewer approval.',
 ];

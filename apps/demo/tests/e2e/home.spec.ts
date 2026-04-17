@@ -14,13 +14,14 @@ test.describe('home page docs sections', () => {
       page.getByRole('heading', { name: /interact with a production-like/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: /engineering choices optimized for real product delivery/i }),
+      page.getByRole('heading', {
+        name: /engineering choices optimized for real product delivery/i,
+      }),
     ).toBeVisible();
     await expect(page.getByRole('heading', { name: /core field primitives/i })).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: /frequently asked implementation questions/i }),
+      page.getByRole('heading', { name: /where the project stands right now/i }),
     ).toBeVisible();
-    await expect(page.getByRole('heading', { name: /current project delivery state/i })).toBeVisible();
 
     await expect(page.getByRole('link', { name: /open full demo/i })).toHaveAttribute(
       'href',
