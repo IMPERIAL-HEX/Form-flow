@@ -22,23 +22,25 @@ export default async function EmbedPage({
   params,
   searchParams,
 }: {
-  params: { formId: string };
-  searchParams?: Record<string, string | string[] | undefined>;
+  params: Promise<{ formId: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<React.ReactNode> {
-  const baseSchema = await loadFormSchema(params.formId);
+  const { formId } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const baseSchema = await loadFormSchema(formId);
 
   if (!baseSchema) {
     return (
       <main className="ff-embed-missing">
         <h1>Schema not found</h1>
-        <p>Could not find a form schema for "{params.formId}".</p>
+        <p>Could not find a form schema for "{formId}".</p>
       </main>
     );
   }
 
-  const schema = applyEmbedOverrides(baseSchema, searchParams);
+  const schema = applyEmbedOverrides(baseSchema, resolvedSearchParams);
 
-  return <EmbedClient formId={params.formId} schema={schema} />;
+  return <EmbedClient formId={formId} schema={schema} />;
 }
 
 function applyEmbedOverrides(

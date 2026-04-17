@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const port = Number(process.env.PORT ?? 3000);
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}`;
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 4010);
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -19,7 +19,7 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: {
-    command: 'pnpm dev',
+    command: `pnpm dev --webpack --port ${port}`,
     port,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

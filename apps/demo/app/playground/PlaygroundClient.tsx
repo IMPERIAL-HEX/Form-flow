@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { FormSchema } from '@formflow/core';
 
@@ -16,43 +16,34 @@ const INITIAL_PRESET_ID = 'education-loan';
 
 export function PlaygroundClient(): React.ReactNode {
   const [activePresetId, setActivePresetId] = useState(INITIAL_PRESET_ID);
+  const [isReady, setIsReady] = useState(false);
   const [editorValue, setEditorValue] = useState(() =>
     prettyPrintSchema(getPresetById(INITIAL_PRESET_ID).schema),
   );
-  const [schema, setSchema] = useState<FormSchema | null>(
-    () => getPresetById(INITIAL_PRESET_ID).schema,
-  );
-  const [error, setError] = useState<string | null>(null);
   const [submissionData, setSubmissionData] = useState<Record<string, unknown> | null>(null);
 
-  useEffect(() => {
-    const handle = window.setTimeout(() => {
-      const result = parseSchemaText(editorValue);
-      setSchema(result.schema);
-      setError(result.error);
-    }, 300);
+  const parsedSchema = useMemo(() => parseSchemaText(editorValue), [editorValue]);
+  const schema: FormSchema | null = parsedSchema.schema;
+  const error: string | null = parsedSchema.error;
 
-    return () => {
-      window.clearTimeout(handle);
-    };
-  }, [editorValue]);
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
   const handlePresetSelect = (presetId: string): void => {
     const preset = getPresetById(presetId);
     setActivePresetId(preset.id);
     setEditorValue(prettyPrintSchema(preset.schema));
-    setSchema(preset.schema);
-    setError(null);
     setSubmissionData(null);
   };
 
   return (
-    <main className="ff-playground-page">
+    <main className="ff-playground-page" data-ready={isReady ? 'true' : 'false'}>
       <header className="ff-playground-header">
         <p className="ff-eyebrow">Playground</p>
         <h1>Edit JSON and watch the form update live</h1>
         <p>
-          This page parses your schema every 300ms. Invalid schemas stay in the editor and surface
+          This page parses your schema as you type. Invalid schemas stay in the editor and surface
           parser errors without crashing the preview.
         </p>
       </header>

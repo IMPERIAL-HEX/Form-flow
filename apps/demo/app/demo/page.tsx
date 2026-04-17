@@ -7,14 +7,15 @@ import { DemoClient } from './DemoClient';
 export default function DemoPage({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<React.ReactNode> {
   return renderDemoPage(searchParams);
 }
 
 async function renderDemoPage(
-  searchParams?: Record<string, string | string[] | undefined>,
+  searchParams?: Promise<Record<string, string | string[] | undefined>>,
 ): Promise<React.ReactNode> {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const schema = await loadFormSchema('education-loan');
 
   if (!schema) {
@@ -22,9 +23,9 @@ async function renderDemoPage(
   }
 
   const selectedLayout =
-    typeof searchParams?.layout === 'string' &&
-    ['sidebar-left', 'top-stepper', 'centered'].includes(searchParams.layout)
-      ? searchParams.layout
+    typeof resolvedSearchParams?.layout === 'string' &&
+    ['sidebar-left', 'top-stepper', 'centered'].includes(resolvedSearchParams.layout)
+      ? resolvedSearchParams.layout
       : schema.layout.template;
 
   const demoSchema: FormSchema = {
