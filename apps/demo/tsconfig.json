@@ -5,7 +5,6 @@
     "allowJs": false,
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@formflow/core": ["../../packages/core/src/index.ts"],

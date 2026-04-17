@@ -84,8 +84,7 @@ export function buildFormValidator(schema: FormSchema): z.ZodObject<Record<strin
 
 function buildTextValidator(field: TextFieldSchema): z.ZodString {
   let schema = z.string({
-    required_error: field.messages?.required ?? `${field.label} is required`,
-    invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+    error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
 
   if (field.required) {
@@ -110,8 +109,7 @@ function buildTextValidator(field: TextFieldSchema): z.ZodString {
 
 function buildTextAreaValidator(field: TextAreaFieldSchema): z.ZodString {
   let schema = z.string({
-    required_error: field.messages?.required ?? `${field.label} is required`,
-    invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+    error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
 
   if (field.required) {
@@ -132,8 +130,7 @@ function buildTextAreaValidator(field: TextAreaFieldSchema): z.ZodString {
 function buildEmailValidator(field: EmailFieldSchema): z.ZodString {
   let schema = z
     .string({
-      required_error: field.messages?.required ?? `${field.label} is required`,
-      invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+      error: field.messages?.invalid ?? `${field.label} is invalid`,
     })
     .email(field.messages?.invalid ?? `${field.label} must be a valid email`);
 
@@ -148,8 +145,7 @@ function buildPhoneValidator(field: PhoneFieldSchema): z.ZodString {
   const phoneRegex = /^\+?[0-9\s()\-]{7,20}$/;
   let schema = z
     .string({
-      required_error: field.messages?.required ?? `${field.label} is required`,
-      invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+      error: field.messages?.invalid ?? `${field.label} is invalid`,
     })
     .regex(phoneRegex, field.messages?.invalid ?? `${field.label} must be a valid phone number`);
 
@@ -160,10 +156,9 @@ function buildPhoneValidator(field: PhoneFieldSchema): z.ZodString {
   return schema;
 }
 
-function buildNumberValidator(field: NumberFieldSchema): z.ZodNumber {
+function buildNumberValidator(field: NumberFieldSchema): z.ZodTypeAny {
   let schema = z.coerce.number({
-    required_error: field.messages?.required ?? `${field.label} is required`,
-    invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+    error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
 
   if (field.min !== undefined) {
@@ -177,10 +172,9 @@ function buildNumberValidator(field: NumberFieldSchema): z.ZodNumber {
   return schema;
 }
 
-function buildCurrencyValidator(field: CurrencyFieldSchema): z.ZodNumber {
+function buildCurrencyValidator(field: CurrencyFieldSchema): z.ZodTypeAny {
   let schema = z.coerce.number({
-    required_error: field.messages?.required ?? `${field.label} is required`,
-    invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+    error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
 
   schema = schema.min(field.min, field.messages?.min ?? `${field.label} is too small`);
@@ -189,26 +183,19 @@ function buildCurrencyValidator(field: CurrencyFieldSchema): z.ZodNumber {
   return schema;
 }
 
-function buildSelectValidator(field: SelectFieldSchema): z.ZodEnum<[string, ...string[]]> {
+function buildSelectValidator(field: SelectFieldSchema): z.ZodTypeAny {
   const options = asEnumValues(field.options.map((option) => option.value));
   return z.enum(options, {
-    required_error: field.messages?.required ?? `${field.label} is required`,
-    invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+    error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
 }
 
-function buildMultiSelectValidator(
-  field: MultiSelectFieldSchema,
-): z.ZodArray<z.ZodEnum<[string, ...string[]]>> {
+function buildMultiSelectValidator(field: MultiSelectFieldSchema): z.ZodTypeAny {
   const options = asEnumValues(field.options.map((option) => option.value));
   let schema = z.array(
     z.enum(options, {
-      invalid_type_error: field.messages?.invalid ?? `${field.label} contains an invalid value`,
+      error: field.messages?.invalid ?? `${field.label} contains an invalid value`,
     }),
-    {
-      required_error: field.messages?.required ?? `${field.label} is required`,
-      invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
-    },
   );
 
   if (field.minSelections !== undefined) {
@@ -229,10 +216,9 @@ function buildMultiSelectValidator(
 }
 
 function buildDateValidator(field: DateFieldSchema): z.ZodTypeAny {
-  let schema: z.ZodTypeAny = z
+  let schema = z
     .string({
-      required_error: field.messages?.required ?? `${field.label} is required`,
-      invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+      error: field.messages?.invalid ?? `${field.label} is invalid`,
     })
     .refine(
       (value) => !Number.isNaN(Date.parse(value)),
@@ -313,8 +299,7 @@ function buildAddressValidator(field: AddressFieldSchema): z.ZodTypeAny {
 
 function buildCheckboxValidator(field: CheckboxFieldSchema): z.ZodTypeAny {
   const schema = z.boolean({
-    required_error: field.messages?.required ?? `${field.label} is required`,
-    invalid_type_error: field.messages?.invalid ?? `${field.label} is invalid`,
+    error: field.messages?.invalid ?? `${field.label} is invalid`,
   });
 
   if (!field.required) {

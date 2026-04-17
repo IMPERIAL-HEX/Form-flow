@@ -1,11 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "rootDir": "..",
     "outDir": "dist",
     "jsx": "react-jsx",
     "paths": {
       "@formflow/core": ["../core/src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../core/src"]
 }
