@@ -20,7 +20,7 @@ export function DeliveryStatusSection(): React.ReactNode {
       id="delivery-status"
       eyebrow="Delivery Status"
       title="Where the project stands right now"
-      description="This branch tracks final release polish with explicit scope and quality-gate closure."
+      description="A branch-level snapshot of what is complete and what remains before merge."
     >
       <div className="ff-status-grid">
         {deliveryStages.map((stage) => (
@@ -42,7 +42,7 @@ export function DeliveryStatusSection(): React.ReactNode {
       </div>
 
       <div className="ff-status-next">
-        <h3>Remaining before done</h3>
+        <h3>Remaining Before Done</h3>
         <ul>
           {remainingChecklist.map((item) => (
             <li key={item}>{item}</li>

@@ -32,8 +32,20 @@ formflow/
 │   ├── core/      # schema parser, runtime validation, condition engine, state machine
 │   └── react/     # renderer, field components, layouts, hooks, theme
 └── apps/
-		└── demo/      # docs/landing, demo flow, playground, embed route, API routes
+  └── demo/      # docs/landing, demo flow, playground, embed route, API routes
 ```
+
+## Quality Gates
+
+Merges to main are expected to pass:
+
+1. `pnpm typecheck`
+2. `pnpm test`
+3. `pnpm --filter @formflow/demo test:e2e`
+
+CI workflow:
+
+1. `.github/workflows/quality-gates.yml`
 
 ## Minimal Usage
 
