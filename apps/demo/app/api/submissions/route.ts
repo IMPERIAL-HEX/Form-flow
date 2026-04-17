@@ -1,10 +1,23 @@
 export async function POST(request: Request): Promise<Response> {
-  const payload = await request.json();
+  let payload: unknown;
+
+  try {
+    payload = await request.json();
+  } catch {
+    return Response.json(
+      {
+        success: false,
+        error: 'Invalid JSON payload.',
+      },
+      { status: 400 },
+    );
+  }
 
   console.log('[FormFlow Submission]', JSON.stringify(payload, null, 2));
 
   return Response.json({
     success: true,
     id: crypto.randomUUID(),
+    receivedAt: new Date().toISOString(),
   });
 }

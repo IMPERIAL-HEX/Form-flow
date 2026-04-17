@@ -8,14 +8,17 @@ interface DemoClientProps {
 }
 
 export function DemoClient({ schema }: DemoClientProps): React.ReactNode {
+  const method = schema.submission.method ?? 'POST';
+
   return (
     <FormFlowRenderer
       schema={schema}
       onSubmit={async (payload: Record<string, unknown>) => {
-        await fetch('/api/submissions', {
-          method: 'POST',
+        await fetch(schema.submission.endpoint, {
+          method,
           headers: {
             'Content-Type': 'application/json',
+            ...(schema.submission.headers ?? {}),
           },
           body: JSON.stringify(payload),
         });

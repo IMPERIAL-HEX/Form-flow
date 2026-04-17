@@ -25,3 +25,327 @@ body {
 a {
   color: inherit;
 }
+
+.ff-eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.ff-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 160ms ease;
+}
+
+.ff-button-primary {
+  background: #0d9488;
+  color: #ffffff;
+}
+
+.ff-button-primary:hover {
+  background: #0f766e;
+}
+
+.ff-button-secondary {
+  border-color: #99f6e4;
+  background: #ffffff;
+  color: #0f766e;
+}
+
+.ff-button-secondary:hover {
+  border-color: #5eead4;
+  background: #f0fdfa;
+}
+
+.ff-home {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 3rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.ff-home-hero {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 52%, #e0f2fe 100%);
+  border: 1px solid #99f6e4;
+}
+
+.ff-home-hero h1 {
+  margin: 0.35rem 0 0.65rem;
+  font-size: clamp(1.75rem, 4vw, 2.6rem);
+  line-height: 1.15;
+}
+
+.ff-home-hero p {
+  margin: 0;
+  max-width: 72ch;
+  color: #1f2937;
+}
+
+.ff-home-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.ff-home-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.ff-home-card {
+  border-radius: 0.9rem;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.ff-home-card h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
+}
+
+.ff-home-card p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.ff-home-card a {
+  margin-top: 0.7rem;
+  display: inline-block;
+  color: #0f766e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ff-home-card a:hover {
+  text-decoration: underline;
+}
+
+.ff-home-code {
+  border-radius: 0.9rem;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.ff-home-code h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+}
+
+.ff-home-code pre {
+  margin: 0;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  overflow: auto;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.84rem;
+}
+
+.ff-playground-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.ff-playground-header {
+  margin-bottom: 1rem;
+}
+
+.ff-playground-header h1 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: clamp(1.45rem, 3.1vw, 2.2rem);
+}
+
+.ff-playground-header p {
+  margin: 0;
+  color: #4b5563;
+  max-width: 78ch;
+}
+
+.ff-playground-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(340px, 1fr) minmax(360px, 1fr);
+  align-items: start;
+}
+
+.ff-editor-pane,
+.ff-preview-pane {
+  min-width: 0;
+}
+
+.ff-tabs {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.ff-tab {
+  display: grid;
+  gap: 0.2rem;
+  text-align: left;
+  border: 1px solid #d1d5db;
+  border-radius: 0.7rem;
+  background: #ffffff;
+  padding: 0.7rem 0.8rem;
+  cursor: pointer;
+}
+
+.ff-tab:hover {
+  border-color: #14b8a6;
+}
+
+.ff-tab-active {
+  border-color: #14b8a6;
+  background: #f0fdfa;
+}
+
+.ff-tab-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.ff-tab-description {
+  color: #4b5563;
+  font-size: 0.82rem;
+}
+
+.ff-editor-label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ff-editor {
+  min-height: 640px;
+  width: 100%;
+  resize: vertical;
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.81rem;
+  line-height: 1.45;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  padding: 0.9rem;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.ff-editor:focus {
+  outline: 2px solid #14b8a6;
+  outline-offset: 2px;
+}
+
+.ff-schema-status {
+  margin-top: 0.65rem;
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.88rem;
+}
+
+.ff-schema-valid {
+  border: 1px solid #34d399;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.ff-schema-error {
+  border: 1px solid #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+  white-space: pre-wrap;
+}
+
+.ff-preview-pane {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.ff-preview-card,
+.ff-preview-payload {
+  border: 1px solid #d1d5db;
+  border-radius: 0.8rem;
+  padding: 0.85rem;
+  background: #ffffff;
+}
+
+.ff-preview-card h2,
+.ff-preview-payload h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.96rem;
+}
+
+.ff-preview-placeholder {
+  margin: 0;
+  color: #4b5563;
+}
+
+.ff-preview-payload pre {
+  margin: 0;
+  padding: 0.65rem;
+  border-radius: 0.6rem;
+  overflow: auto;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.79rem;
+}
+
+.ff-embed-shell {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 0.75rem;
+}
+
+.ff-embed-renderer {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.ff-embed-missing {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 0.45rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.ff-embed-missing h1 {
+  margin: 0;
+}
+
+.ff-embed-missing p {
+  margin: 0;
+  color: #4b5563;
+}
+
+@media (max-width: 1080px) {
+  .ff-playground-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ff-editor {
+    min-height: 460px;
+  }
+}
