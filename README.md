@@ -134,6 +134,29 @@ pnpm test
 pnpm build
 ```
 
+## E2E Testing (Demo App)
+
+Playwright scaffolding is included in `apps/demo/tests/e2e` for landing, demo flow,
+playground, embed route, and API smoke checks.
+
+Install browser binaries once:
+
+```bash
+pnpm --filter @formflow/demo exec playwright install
+```
+
+Run E2E tests:
+
+```bash
+pnpm --filter @formflow/demo test:e2e
+```
+
+Run with Playwright UI mode:
+
+```bash
+pnpm --filter @formflow/demo test:e2e:ui
+```
+
 ## Why This Exists
 
 This project demonstrates a practical DSL-style runtime for financial form flows:
