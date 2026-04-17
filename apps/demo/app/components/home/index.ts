@@ -1,5 +1,9 @@
+export { DeliveryStatusSection } from './DeliveryStatusSection';
+export { FaqSection } from './FaqSection';
 export { HeroSection } from './HeroSection';
 export { HowItWorksSection } from './HowItWorksSection';
 export { LiveDemoSection } from './LiveDemoSection';
+export { QuickLinksSection } from './QuickLinksSection';
 export { SchemaReferenceSection } from './SchemaReferenceSection';
 export { SdkUsageSection } from './SdkUsageSection';
+export { ValuePropsSection } from './ValuePropsSection';

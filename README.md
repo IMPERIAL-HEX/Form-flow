@@ -32,8 +32,20 @@ formflow/
 │   ├── core/      # schema parser, runtime validation, condition engine, state machine
 │   └── react/     # renderer, field components, layouts, hooks, theme
 └── apps/
-		└── demo/      # docs/landing, demo flow, playground, embed route, API routes
+  └── demo/      # docs/landing, demo flow, playground, embed route, API routes
 ```
+
+## Quality Gates
+
+Merges to main are expected to pass:
+
+1. `pnpm typecheck`
+2. `pnpm test`
+3. `pnpm --filter @formflow/demo test:e2e`
+
+CI workflow:
+
+1. `.github/workflows/quality-gates.yml`
 
 ## Minimal Usage
 
@@ -166,3 +178,18 @@ This project demonstrates a practical DSL-style runtime for financial form flows
 3. Render via reusable UI adapters.
 
 It is intentionally built as a portfolio-quality architecture that can evolve into hosted builders, analytics, and multi-framework SDKs.
+
+## Project Status
+
+Current branch focus: release readiness and landing/docs polish.
+
+1. Complete: core engine implementation and coverage-oriented tests
+2. Complete: React SDK renderer, layouts, and field component surface
+3. Complete: demo, playground, embed route, and API endpoints
+4. Complete: landing/docs expansion with delivery status visibility and FAQ
+5. In progress: final PR review and merge into main
+
+Remaining before done:
+
+1. Run final quality-gate sweep on branch HEAD
+2. Merge branch to main after reviewer approval

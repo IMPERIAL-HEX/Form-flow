@@ -26,6 +26,23 @@ a {
   color: inherit;
 }
 
+.ff-skip-link {
+  position: absolute;
+  top: -2.5rem;
+  left: 0.75rem;
+  z-index: 1000;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  transition: top 140ms ease;
+}
+
+.ff-skip-link:focus {
+  top: 0.75rem;
+}
+
 .ff-eyebrow {
   margin: 0;
   font-size: 0.75rem;
@@ -123,6 +140,36 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
+}
+
+.ff-quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.ff-quick-link-card {
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  background: #ffffff;
+  padding: 0.8rem;
+  text-decoration: none;
+  transition: border-color 140ms ease;
+}
+
+.ff-quick-link-card:hover {
+  border-color: #14b8a6;
+}
+
+.ff-quick-link-card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.98rem;
+}
+
+.ff-quick-link-card p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.9rem;
 }
 
 .ff-home-grid {
@@ -253,6 +300,106 @@ a {
 
 .ff-schema-item .ff-code-block {
   margin-top: 0.5rem;
+}
+
+.ff-faq-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ff-faq-item {
+  border: 1px solid #d1d5db;
+  border-radius: 0.8rem;
+  background: #ffffff;
+  padding: 0.7rem;
+}
+
+.ff-faq-item summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.ff-faq-item p {
+  margin: 0.55rem 0 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.ff-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.75rem;
+}
+
+.ff-status-card {
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  background: #ffffff;
+  padding: 0.8rem;
+}
+
+.ff-status-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ff-status-card-header h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.ff-status-card p {
+  margin: 0.45rem 0 0.55rem;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.ff-status-card ul,
+.ff-status-next ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #374151;
+}
+
+.ff-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ff-status-complete {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #86efac;
+}
+
+.ff-status-in-progress {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+
+.ff-status-next {
+  margin-top: 0.85rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  padding: 0.8rem;
+  background: #f8fafc;
+}
+
+.ff-status-next h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.98rem;
 }
 
 .ff-home-card {

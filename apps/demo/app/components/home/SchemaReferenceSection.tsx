@@ -12,8 +12,8 @@ export function SchemaReferenceSection(): React.ReactNode {
       description="Field definitions are composable and can be extended with variants through the registry."
     >
       <div className="ff-schema-accordion">
-        {schemaFieldReference.map((item) => (
-          <details key={item.field} className="ff-schema-item">
+        {schemaFieldReference.map((item, index) => (
+          <details key={item.field} className="ff-schema-item" open={index === 0}>
             <summary>
               <span>{item.field}</span>
               <small>{item.summary}</small>

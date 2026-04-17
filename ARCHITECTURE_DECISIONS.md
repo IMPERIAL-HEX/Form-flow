@@ -21,7 +21,7 @@
 ## ADR-004: Branch Strategy
 
 - Status: Accepted
-- Decision: Vertical feature branches with PR + squash merge.
+- Decision: Vertical feature branches with PR + squash merge, using descriptive milestone names and avoiding day-based branch names.
 - Rationale: Produces recruiter-readable, milestone-oriented history.
 
 ## ADR-005: Core Coverage Gate
@@ -29,3 +29,9 @@
 - Status: Accepted
 - Decision: Track statement coverage as the primary numeric gate for core package.
 - Rationale: Type-only modules and generated branches can distort branch coverage signals in schema-driven code.
+
+## ADR-006: CI Quality Gates
+
+- Status: Accepted
+- Decision: Pull requests targeting main must pass workspace typecheck, workspace tests, and demo E2E checks.
+- Rationale: Keeps merge quality objective, repeatable, and aligned with release readiness.

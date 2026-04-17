@@ -13,6 +13,9 @@ export function HeroSection(): React.ReactNode {
         <Link href="#live-demo" className="ff-button ff-button-primary">
           See It Live
         </Link>
+        <Link href="#delivery-status" className="ff-button ff-button-secondary">
+          View Delivery Status
+        </Link>
         <Link href="/demo" className="ff-button ff-button-secondary">
           Open Full Demo
         </Link>
