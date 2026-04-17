@@ -1,0 +1,545 @@
+{
+  "id": "education-loan",
+  "version": "1.0.0",
+  "title": "Education Loan Application",
+  "description": "Apply in under 10 minutes with a fully guided multi-step flow.",
+  "layout": {
+    "template": "sidebar-left",
+    "header": {
+      "title": "Education Loan Application",
+      "subtitle": "Secure, fast and transparent financing for your studies",
+      "background": "gradient",
+      "showLogo": false
+    },
+    "navigator": {
+      "showStepNumbers": true,
+      "showIcons": true,
+      "showProgress": true,
+      "clickableSteps": true
+    },
+    "footer": {
+      "previousLabel": "Previous",
+      "nextLabel": "Continue",
+      "submitLabel": "Submit Application",
+      "showPreviousOnFirstStep": false
+    }
+  },
+  "submission": {
+    "endpoint": "/api/submissions",
+    "method": "POST",
+    "transformKeys": true
+  },
+  "theme": {
+    "primaryColor": "#6366f1",
+    "borderRadius": "lg",
+    "fontFamily": "Inter, system-ui, sans-serif",
+    "mode": "light"
+  },
+  "steps": [
+    {
+      "id": "loan-amount",
+      "title": "Loan Amount",
+      "heading": "How much funding do you need?",
+      "description": "Choose your amount and purpose to tailor repayment options.",
+      "fields": [
+        {
+          "type": "currency",
+          "key": "loan.amount",
+          "label": "Requested amount",
+          "required": true,
+          "currency": "GBP",
+          "min": 1000,
+          "max": 10000,
+          "step": 250,
+          "quickSelect": [
+            2000,
+            4000,
+            6000,
+            8000,
+            10000
+          ],
+          "ui": {
+            "variant": "slider-with-quick-select",
+            "width": "full"
+          }
+        },
+        {
+          "type": "select",
+          "key": "loan.purpose",
+          "label": "Primary purpose",
+          "required": true,
+          "ui": {
+            "variant": "icon-cards",
+            "width": "full"
+          },
+          "options": [
+            {
+              "value": "medical",
+              "label": "Medical"
+            },
+            {
+              "value": "dental",
+              "label": "Dental"
+            },
+            {
+              "value": "hearing",
+              "label": "Hearing"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "treatment-details",
+      "title": "Treatment Details",
+      "heading": "Tell us about your course or treatment",
+      "description": "This helps us validate institution and cost timelines.",
+      "fields": [
+        {
+          "type": "select",
+          "key": "treatment.type",
+          "label": "Treatment type",
+          "required": true,
+          "ui": {
+            "variant": "dropdown",
+            "width": "full"
+          },
+          "options": [
+            {
+              "value": "undergraduate",
+              "label": "Undergraduate Program"
+            },
+            {
+              "value": "postgraduate",
+              "label": "Postgraduate Program"
+            },
+            {
+              "value": "vocational",
+              "label": "Vocational Training"
+            },
+            {
+              "value": "professional",
+              "label": "Professional Certification"
+            }
+          ]
+        },
+        {
+          "type": "textarea",
+          "key": "treatment.description",
+          "label": "Describe your planned usage",
+          "required": true,
+          "minLength": 20,
+          "maxLength": 400,
+          "rows": 5,
+          "ui": {
+            "width": "full"
+          }
+        }
+      ]
+    },
+    {
+      "id": "personal-details",
+      "title": "Personal Details",
+      "heading": "Your personal profile",
+      "description": "We only ask for details relevant to responsible lending.",
+      "fields": [
+        {
+          "type": "text",
+          "key": "personal.firstName",
+          "label": "First name",
+          "required": true,
+          "minLength": 2,
+          "ui": {
+            "width": "half"
+          }
+        },
+        {
+          "type": "text",
+          "key": "personal.lastName",
+          "label": "Last name",
+          "required": true,
+          "minLength": 2,
+          "ui": {
+            "width": "half"
+          }
+        },
+        {
+          "type": "date",
+          "key": "personal.dateOfBirth",
+          "label": "Date of birth",
+          "required": true,
+          "maxDate": "2010-01-01",
+          "ui": {
+            "width": "half"
+          }
+        },
+        {
+          "type": "select",
+          "key": "personal.maritalStatus",
+          "label": "Marital status",
+          "required": true,
+          "ui": {
+            "variant": "pill-buttons",
+            "width": "half"
+          },
+          "options": [
+            {
+              "value": "single",
+              "label": "Single"
+            },
+            {
+              "value": "married",
+              "label": "Married"
+            },
+            {
+              "value": "civil-partnership",
+              "label": "Civil Partnership"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact-information",
+      "title": "Contact Information",
+      "heading": "How can we reach you?",
+      "description": "We use this only for verification and application updates.",
+      "fields": [
+        {
+          "type": "email",
+          "key": "contact.email",
+          "label": "Email address",
+          "required": true,
+          "ui": {
+            "width": "full"
+          }
+        },
+        {
+          "type": "phone",
+          "key": "contact.phone",
+          "label": "Mobile number",
+          "required": true,
+          "ui": {
+            "width": "full"
+          }
+        },
+        {
+          "type": "address",
+          "key": "contact.homeAddress",
+          "label": "Home address",
+          "required": true,
+          "includeLine2": true,
+          "ui": {
+            "width": "full"
+          }
+        }
+      ]
+    },
+    {
+      "id": "institution-details",
+      "title": "Institution Details",
+      "heading": "Where will you study?",
+      "description": "Institution data supports affordability and timeline checks.",
+      "fields": [
+        {
+          "type": "text",
+          "key": "institution.name",
+          "label": "Institution name",
+          "required": true,
+          "ui": {
+            "width": "full"
+          }
+        },
+        {
+          "type": "text",
+          "key": "institution.country",
+          "label": "Country",
+          "required": true,
+          "ui": {
+            "width": "half"
+          }
+        },
+        {
+          "type": "text",
+          "key": "institution.city",
+          "label": "City",
+          "required": true,
+          "ui": {
+            "width": "half"
+          }
+        }
+      ]
+    },
+    {
+      "id": "employment-status",
+      "title": "Employment Status",
+      "heading": "Current work status",
+      "description": "This helps estimate your repayment capacity.",
+      "fields": [
+        {
+          "type": "select",
+          "key": "employment.status",
+          "label": "Employment status",
+          "required": true,
+          "ui": {
+            "variant": "radio-group",
+            "width": "full"
+          },
+          "options": [
+            {
+              "value": "employed",
+              "label": "Employed"
+            },
+            {
+              "value": "self-employed",
+              "label": "Self-Employed"
+            },
+            {
+              "value": "student",
+              "label": "Student"
+            },
+            {
+              "value": "unemployed",
+              "label": "Unemployed"
+            },
+            {
+              "value": "retired",
+              "label": "Retired"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "employment-details",
+      "title": "Employment Details",
+      "heading": "Employment details",
+      "description": "Complete this step only if you currently earn active income.",
+      "showIf": {
+        "field": "employment.status",
+        "operator": "in",
+        "value": [
+          "employed",
+          "self-employed"
+        ]
+      },
+      "fields": [
+        {
+          "type": "text",
+          "key": "employment.employerName",
+          "label": "Employer or business name",
+          "required": true,
+          "ui": {
+            "width": "half"
+          }
+        },
+        {
+          "type": "text",
+          "key": "employment.jobTitle",
+          "label": "Job title",
+          "required": true,
+          "ui": {
+            "width": "half"
+          }
+        },
+        {
+          "type": "number",
+          "key": "employment.monthlyIncome",
+          "label": "Monthly income",
+          "required": true,
+          "min": 0,
+          "max": 50000,
+          "step": 100,
+          "ui": {
+            "variant": "stepper",
+            "width": "half"
+          }
+        },
+        {
+          "type": "select",
+          "key": "employment.duration",
+          "label": "Employment duration",
+          "required": true,
+          "ui": {
+            "variant": "dropdown",
+            "width": "half"
+          },
+          "options": [
+            {
+              "value": "lt1",
+              "label": "Less than 1 year"
+            },
+            {
+              "value": "1to3",
+              "label": "1-3 years"
+            },
+            {
+              "value": "3to5",
+              "label": "3-5 years"
+            },
+            {
+              "value": "5plus",
+              "label": "5+ years"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "financial-details",
+      "title": "Financial Details",
+      "heading": "Monthly obligations",
+      "description": "Provide realistic expenses so we can offer suitable repayment plans.",
+      "fields": [
+        {
+          "type": "number",
+          "key": "financial.monthlyExpenses",
+          "label": "Monthly expenses",
+          "required": true,
+          "min": 0,
+          "max": 50000,
+          "step": 50,
+          "ui": {
+            "width": "half"
+          }
+        },
+        {
+          "type": "select",
+          "key": "financial.existingLoans",
+          "label": "Do you have existing loans?",
+          "required": true,
+          "ui": {
+            "variant": "radio-group",
+            "width": "half"
+          },
+          "options": [
+            {
+              "value": "yes",
+              "label": "Yes"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            }
+          ]
+        },
+        {
+          "type": "number",
+          "key": "financial.existingLoanAmount",
+          "label": "Existing total loan amount",
+          "required": true,
+          "min": 0,
+          "max": 100000,
+          "step": 100,
+          "showIf": {
+            "field": "financial.existingLoans",
+            "operator": "eq",
+            "value": "yes"
+          },
+          "ui": {
+            "width": "full"
+          }
+        }
+      ]
+    },
+    {
+      "id": "document-upload",
+      "title": "Document Upload",
+      "heading": "Upload supporting documents",
+      "description": "Accepted formats: PDF, JPG, PNG. Max file size 10 MB each.",
+      "fields": [
+        {
+          "type": "file",
+          "key": "documents.identityDocument",
+          "label": "Identity document",
+          "required": true,
+          "accept": [
+            ".pdf",
+            ".jpg",
+            ".jpeg",
+            ".png"
+          ],
+          "maxSizeMb": 10,
+          "ui": {
+            "width": "full"
+          }
+        },
+        {
+          "type": "file",
+          "key": "documents.proofOfAddress",
+          "label": "Proof of address",
+          "required": true,
+          "accept": [
+            ".pdf",
+            ".jpg",
+            ".jpeg",
+            ".png"
+          ],
+          "maxSizeMb": 10,
+          "ui": {
+            "width": "full"
+          }
+        },
+        {
+          "type": "file",
+          "key": "documents.incomeProof",
+          "label": "Income proof",
+          "required": true,
+          "accept": [
+            ".pdf",
+            ".jpg",
+            ".jpeg",
+            ".png"
+          ],
+          "maxSizeMb": 10,
+          "showIf": {
+            "field": "employment.status",
+            "operator": "in",
+            "value": [
+              "employed",
+              "self-employed"
+            ]
+          },
+          "ui": {
+            "width": "full"
+          }
+        }
+      ]
+    },
+    {
+      "id": "review-and-confirm",
+      "title": "Review & Confirm",
+      "heading": "Review your application",
+      "description": "Please confirm your details before final submission.",
+      "fields": [
+        {
+          "type": "info",
+          "key": "review.summary",
+          "label": "Application Summary",
+          "variant": "summary",
+          "content": "Please review all entered information. Hidden conditional sections are excluded from final submission by default.",
+          "ui": {
+            "width": "full"
+          }
+        },
+        {
+          "type": "checkbox",
+          "key": "review.termsAccepted",
+          "label": "I confirm the information is accurate and I agree to the terms.",
+          "required": true,
+          "ui": {
+            "width": "full"
+          }
+        }
+      ]
+    }
+  ]
+}
