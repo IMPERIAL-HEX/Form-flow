@@ -202,7 +202,7 @@ const formSchema = z.object({
   submission: z.object({
     endpoint: z.string().min(1),
     method: z.enum(['POST', 'PUT']).optional(),
-    headers: z.record(z.string()).optional(),
+    headers: z.record(z.string(), z.string()).optional(),
     transformKeys: z.boolean().optional(),
     onSuccess: z
       .object({

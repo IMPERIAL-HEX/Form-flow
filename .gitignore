@@ -3,6 +3,7 @@ pnpm-lock.yaml
 .turbo
 .next
 dist
+*.tsbuildinfo
 coverage
 .env
 .env.*
