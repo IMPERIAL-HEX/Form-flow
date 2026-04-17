@@ -169,7 +169,8 @@ export const deliveryStages: DeliveryStage[] = [
   {
     phase: 'Demo + APIs',
     status: 'complete',
-    summary: 'Hosted flow, schema endpoint, submissions endpoint, embed mode, and playground are live.',
+    summary:
+      'Hosted flow, schema endpoint, submissions endpoint, embed mode, and playground are live.',
     artifacts: ['apps/demo/app/demo', 'apps/demo/app/api', 'apps/demo/app/embed'],
   },
   {
@@ -182,8 +183,7 @@ export const deliveryStages: DeliveryStage[] = [
   {
     phase: 'Final release pass',
     status: 'in-progress',
-    summary:
-      'Quality-gate sweep is passing; PR review and merge to main remain before closure.',
+    summary: 'Quality-gate sweep is passing; PR review and merge to main remain before closure.',
     artifacts: ['.github/workflows/quality-gates.yml', 'ARCHITECTURE_DECISIONS.md'],
   },
 ];

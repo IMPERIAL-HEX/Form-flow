@@ -14,9 +14,9 @@ test.describe('home page docs sections', () => {
       page.getByRole('heading', { name: /interact with a production-like/i }),
     ).toBeVisible();
     await expect(page.getByRole('heading', { name: /core field primitives/i })).toBeVisible();
-      await expect(
-        page.getByRole('heading', { name: /where the project stands right now/i }),
-      ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /where the project stands right now/i }),
+    ).toBeVisible();
 
     await expect(page.getByRole('link', { name: /open full demo/i })).toHaveAttribute(
       'href',
