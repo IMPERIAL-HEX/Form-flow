@@ -6,7 +6,11 @@ interface PresetTabsProps {
   onSelect: (presetId: string) => void;
 }
 
-export function PresetTabs({ presets, activePresetId, onSelect }: PresetTabsProps): React.ReactNode {
+export function PresetTabs({
+  presets,
+  activePresetId,
+  onSelect,
+}: PresetTabsProps): React.ReactNode {
   return (
     <div className="ff-tabs" role="tablist" aria-label="Schema presets">
       {presets.map((preset) => {

@@ -7,7 +7,11 @@ interface PreviewPanelProps {
   onSubmit: (payload: Record<string, unknown>) => void;
 }
 
-export function PreviewPanel({ schema, submissionData, onSubmit }: PreviewPanelProps): React.ReactNode {
+export function PreviewPanel({
+  schema,
+  submissionData,
+  onSubmit,
+}: PreviewPanelProps): React.ReactNode {
   return (
     <section className="ff-preview-pane" aria-label="Live preview pane">
       <div className="ff-preview-card">
@@ -22,7 +26,9 @@ export function PreviewPanel({ schema, submissionData, onSubmit }: PreviewPanelP
       <div className="ff-preview-payload">
         <h3>Submission Payload</h3>
         <pre>
-          {submissionData ? JSON.stringify(submissionData, null, 2) : '{\n  "message": "Submit the form to preview payload"\n}'}
+          {submissionData
+            ? JSON.stringify(submissionData, null, 2)
+            : '{\n  "message": "Submit the form to preview payload"\n}'}
         </pre>
       </div>
     </section>

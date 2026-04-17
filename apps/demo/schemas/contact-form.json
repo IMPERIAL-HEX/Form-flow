@@ -1,103 +1,103 @@
 {
-  "id": "contact-form",
-  "version": "1.0.0",
-  "title": "Contact Intake",
-  "description": "Collect primary contact details and enquiry context.",
-  "layout": {
-    "template": "centered",
-    "footer": {
-      "nextLabel": "Continue",
-      "submitLabel": "Send Request"
-    }
-  },
-  "submission": {
-    "endpoint": "/api/submissions",
-    "method": "POST",
-    "transformKeys": true
-  },
-  "theme": {
-    "primaryColor": "#0d9488",
-    "borderRadius": "md",
-    "mode": "light"
-  },
-  "steps": [
-    {
-      "id": "contact-basics",
-      "title": "Contact Basics",
-      "heading": "Tell us who you are",
-      "fields": [
-        {
-          "type": "text",
-          "key": "contact.name",
-          "label": "Full name",
-          "required": true,
-          "minLength": 2,
-          "ui": {
-            "width": "full"
-          }
-        },
-        {
-          "type": "email",
-          "key": "contact.email",
-          "label": "Work email",
-          "required": true,
-          "ui": {
-            "width": "full"
-          }
-        },
-        {
-          "type": "select",
-          "key": "contact.topic",
-          "label": "What do you need help with?",
-          "required": true,
-          "ui": {
-            "variant": "pill-buttons",
-            "width": "full"
-          },
-          "options": [
-            {
-              "value": "sales",
-              "label": "Sales"
-            },
-            {
-              "value": "integration",
-              "label": "Integration"
-            },
-            {
-              "value": "support",
-              "label": "Support"
-            }
-          ]
+    "id": "contact-form",
+    "version": "1.0.0",
+    "title": "Contact Intake",
+    "description": "Collect primary contact details and enquiry context.",
+    "layout": {
+        "template": "centered",
+        "footer": {
+            "nextLabel": "Continue",
+            "submitLabel": "Send Request"
         }
-      ]
     },
-    {
-      "id": "message",
-      "title": "Message",
-      "heading": "Add details",
-      "fields": [
+    "submission": {
+        "endpoint": "/api/submissions",
+        "method": "POST",
+        "transformKeys": true
+    },
+    "theme": {
+        "primaryColor": "#0d9488",
+        "borderRadius": "md",
+        "mode": "light"
+    },
+    "steps": [
         {
-          "type": "textarea",
-          "key": "message.body",
-          "label": "How can we help?",
-          "required": true,
-          "minLength": 20,
-          "maxLength": 500,
-          "rows": 6,
-          "ui": {
-            "width": "full"
-          }
+            "id": "contact-basics",
+            "title": "Contact Basics",
+            "heading": "Tell us who you are",
+            "fields": [
+                {
+                    "type": "text",
+                    "key": "contact.name",
+                    "label": "Full name",
+                    "required": true,
+                    "minLength": 2,
+                    "ui": {
+                        "width": "full"
+                    }
+                },
+                {
+                    "type": "email",
+                    "key": "contact.email",
+                    "label": "Work email",
+                    "required": true,
+                    "ui": {
+                        "width": "full"
+                    }
+                },
+                {
+                    "type": "select",
+                    "key": "contact.topic",
+                    "label": "What do you need help with?",
+                    "required": true,
+                    "ui": {
+                        "variant": "pill-buttons",
+                        "width": "full"
+                    },
+                    "options": [
+                        {
+                            "value": "sales",
+                            "label": "Sales"
+                        },
+                        {
+                            "value": "integration",
+                            "label": "Integration"
+                        },
+                        {
+                            "value": "support",
+                            "label": "Support"
+                        }
+                    ]
+                }
+            ]
         },
         {
-          "type": "checkbox",
-          "key": "message.consent",
-          "label": "I agree to be contacted about my request.",
-          "required": true,
-          "ui": {
-            "width": "full"
-          }
+            "id": "message",
+            "title": "Message",
+            "heading": "Add details",
+            "fields": [
+                {
+                    "type": "textarea",
+                    "key": "message.body",
+                    "label": "How can we help?",
+                    "required": true,
+                    "minLength": 20,
+                    "maxLength": 500,
+                    "rows": 6,
+                    "ui": {
+                        "width": "full"
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "key": "message.consent",
+                    "label": "I agree to be contacted about my request.",
+                    "required": true,
+                    "ui": {
+                        "width": "full"
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

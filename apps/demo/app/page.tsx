@@ -7,8 +7,8 @@ export default function HomePage(): React.ReactNode {
         <p className="ff-eyebrow">FormFlow</p>
         <h1>Multi-step application forms, defined as data.</h1>
         <p>
-          Schema-driven engine for lending, onboarding, and regulated financial workflows.
-          Build once, render anywhere.
+          Schema-driven engine for lending, onboarding, and regulated financial workflows. Build
+          once, render anywhere.
         </p>
         <div className="ff-home-actions">
           <Link href="/demo" className="ff-button ff-button-primary">
@@ -43,9 +43,7 @@ export default function HomePage(): React.ReactNode {
 
         <article className="ff-home-card">
           <h2>Embeddable Renderer</h2>
-          <p>
-            Serve forms in an iframe and receive submission events through postMessage.
-          </p>
+          <p>Serve forms in an iframe and receive submission events through postMessage.</p>
           <Link href="/embed/education-loan?layout=centered&borderRadius=md">
             Launch /embed/[formId]
           </Link>

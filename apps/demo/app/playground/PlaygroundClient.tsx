@@ -19,7 +19,9 @@ export function PlaygroundClient(): React.ReactNode {
   const [editorValue, setEditorValue] = useState(() =>
     prettyPrintSchema(getPresetById(INITIAL_PRESET_ID).schema),
   );
-  const [schema, setSchema] = useState<FormSchema | null>(() => getPresetById(INITIAL_PRESET_ID).schema);
+  const [schema, setSchema] = useState<FormSchema | null>(
+    () => getPresetById(INITIAL_PRESET_ID).schema,
+  );
   const [error, setError] = useState<string | null>(null);
   const [submissionData, setSubmissionData] = useState<Record<string, unknown> | null>(null);
 
