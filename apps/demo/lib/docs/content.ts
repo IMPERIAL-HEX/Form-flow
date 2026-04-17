@@ -237,8 +237,7 @@ export const faqItems: FaqItem[] = [
   },
   {
     question: 'What is still required before final release merge?',
-    answer:
-      'A final quality-gate sweep on branch HEAD and PR approval before merge into main.',
+    answer: 'A final quality-gate sweep on branch HEAD and PR approval before merge into main.',
   },
 ];
 
@@ -267,7 +266,7 @@ export const deliveryStages: DeliveryStage[] = [
     phase: 'Landing and docs polish',
     status: 'complete',
     summary:
-      'Public narrative, delivery checklist, accessibility improvements, and UX polish are complete.',
+      'Public narrative, usage references, accessibility touches, and progress sections are complete.',
     artifacts: ['apps/demo/app/page.tsx', 'apps/demo/app/components/home', 'README.md'],
   },
   {
