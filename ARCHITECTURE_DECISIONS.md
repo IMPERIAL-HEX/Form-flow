@@ -29,3 +29,9 @@
 - Status: Accepted
 - Decision: Track statement coverage as the primary numeric gate for core package.
 - Rationale: Type-only modules and generated branches can distort branch coverage signals in schema-driven code.
+
+## ADR-006: CI Quality Gates
+
+- Status: Accepted
+- Decision: Pull requests targeting main must pass automated quality gates for workspace typecheck, workspace tests, and demo E2E.
+- Rationale: Keeps branch merges consistent, objective, and aligned with the documented release process.
