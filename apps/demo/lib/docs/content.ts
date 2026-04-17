@@ -10,6 +10,13 @@ export interface SchemaFieldReference {
   example: string;
 }
 
+export interface DeliveryStage {
+  phase: string;
+  status: 'complete' | 'in-progress' | 'next';
+  summary: string;
+  artifacts: string[];
+}
+
 export const howItWorksItems: HowItWorksItem[] = [
   {
     title: '1. Define Schema',
@@ -143,4 +150,46 @@ export const schemaFieldReference: SchemaFieldReference[] = [
   }
 }`,
   },
+];
+
+export const deliveryStages: DeliveryStage[] = [
+  {
+    phase: 'Core engine',
+    status: 'complete',
+    summary: 'Schema parsing, condition evaluation, validation, and step state machine are stable.',
+    artifacts: ['packages/core', 'packages/core/__tests__'],
+  },
+  {
+    phase: 'React SDK',
+    status: 'complete',
+    summary:
+      'Renderer, field registry, layout shells, and hook-based headless integration are available.',
+    artifacts: ['packages/react', 'packages/react/__tests__'],
+  },
+  {
+    phase: 'Demo + APIs',
+    status: 'complete',
+    summary: 'Hosted flow, schema endpoint, submissions endpoint, embed mode, and playground are live.',
+    artifacts: ['apps/demo/app/demo', 'apps/demo/app/api', 'apps/demo/app/embed'],
+  },
+  {
+    phase: 'Landing and docs polish',
+    status: 'in-progress',
+    summary:
+      'Public narrative, delivery checklist, and UX polish are being tightened for release readability.',
+    artifacts: ['apps/demo/app/page.tsx', 'apps/demo/app/components/home', 'README.md'],
+  },
+  {
+    phase: 'Final release pass',
+    status: 'next',
+    summary:
+      'Final smoke checks, release notes quality review, and PR merge to main remain before closure.',
+    artifacts: ['.github/workflows/quality-gates.yml', 'ARCHITECTURE_DECISIONS.md'],
+  },
+];
+
+export const remainingChecklist: string[] = [
+  'Complete final landing copy and visual polish pass.',
+  'Run final full quality gate sweep before PR merge.',
+  'Merge branch to main after reviewer approval.',
 ];

@@ -3,6 +3,7 @@ import type { FormSchema } from '@formflow/core';
 import schema from '@/schemas/education-loan.json';
 
 import {
+  DeliveryStatusSection,
   HeroSection,
   HowItWorksSection,
   LiveDemoSection,
@@ -14,12 +15,13 @@ export default function HomePage(): React.ReactNode {
   const demoSchema = schema as FormSchema;
 
   return (
-    <main className="ff-home">
+    <main id="home-main" className="ff-home">
       <HeroSection />
       <HowItWorksSection />
       <LiveDemoSection schema={demoSchema} />
       <SdkUsageSection />
       <SchemaReferenceSection />
+      <DeliveryStatusSection />
     </main>
   );
 }

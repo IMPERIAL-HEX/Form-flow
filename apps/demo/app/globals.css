@@ -26,6 +26,23 @@ a {
   color: inherit;
 }
 
+.ff-skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -2.5rem;
+  z-index: 1000;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: top 140ms ease;
+}
+
+.ff-skip-link:focus {
+  top: 0.75rem;
+}
+
 .ff-eyebrow {
   margin: 0;
   font-size: 0.75rem;
@@ -253,6 +270,81 @@ a {
 
 .ff-schema-item .ff-code-block {
   margin-top: 0.5rem;
+}
+
+.ff-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.75rem;
+}
+
+.ff-status-card {
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  background: #ffffff;
+  padding: 0.8rem;
+}
+
+.ff-status-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.ff-status-card-header h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.ff-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ff-status-complete {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #86efac;
+}
+
+.ff-status-in-progress {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+
+.ff-status-next {
+  margin-top: 0.85rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  padding: 0.8rem;
+  background: #f8fafc;
+}
+
+.ff-status-next h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.98rem;
+}
+
+.ff-status-next ul,
+.ff-status-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: #374151;
+}
+
+.ff-status-card p {
+  margin: 0.45rem 0 0.55rem;
+  color: #4b5563;
+  font-size: 0.9rem;
 }
 
 .ff-home-card {
