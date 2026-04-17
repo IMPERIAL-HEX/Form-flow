@@ -1,16 +1,19 @@
-import { forwardRef } from 'react';
-
 import type { NumberFieldSchema } from '@formflow/core';
 
 import { FieldChrome, getAriaDescribedBy, sharedInputStyle } from './shared';
 import type { FieldComponentProps } from './types';
 
-export const NumberField = forwardRef<HTMLInputElement, FieldComponentProps>(function NumberField(
-  { field, value, error, onChange, onBlur },
-  ref,
-) {
+export function NumberField({
+  field,
+  value,
+  error,
+  onChange,
+  onBlur,
+}: FieldComponentProps): React.ReactNode {
   const numberField = field as NumberFieldSchema;
   const numericValue = typeof value === 'number' ? value : value === '' ? '' : Number(value);
+  const displayValue =
+    typeof numericValue === 'number' && !Number.isNaN(numericValue) ? numericValue : '';
 
   const applyDelta = (delta: number): void => {
     const nextBase =
@@ -20,11 +23,40 @@ export const NumberField = forwardRef<HTMLInputElement, FieldComponentProps>(fun
 
   const variant = numberField.ui?.variant ?? 'default';
 
+  const inputProps = {
+    type: 'number' as const,
+    value: displayValue,
+    placeholder: numberField.placeholder,
+    min: numberField.min,
+    max: numberField.max,
+    step: numberField.step,
+    disabled: numberField.disabled,
+    readOnly: numberField.readOnly,
+    'aria-required': Boolean(numberField.required),
+    'aria-invalid': Boolean(error),
+    onBlur,
+    onChange: (event: React.ChangeEvent<HTMLInputElement>): void => {
+      if (event.target.value === '') {
+        onChange(undefined);
+        return;
+      }
+      onChange(Number(event.target.value));
+    },
+    style: sharedInputStyle,
+  };
+
   return (
     <FieldChrome field={field} error={error}>
-      {({ inputId, descriptionId, errorId }) => (
-        <div>
-          {variant === 'stepper' ? (
+      {({ inputId, descriptionId, errorId }) => {
+        const describedBy = getAriaDescribedBy(
+          descriptionId,
+          errorId,
+          Boolean(numberField.description),
+          Boolean(error),
+        );
+
+        if (variant === 'stepper') {
+          return (
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <button
                 type="button"
@@ -33,39 +65,7 @@ export const NumberField = forwardRef<HTMLInputElement, FieldComponentProps>(fun
               >
                 -
               </button>
-              <input
-                id={inputId}
-                ref={ref}
-                type="number"
-                value={
-                  typeof numericValue === 'number' && !Number.isNaN(numericValue)
-                    ? numericValue
-                    : ''
-                }
-                placeholder={numberField.placeholder}
-                min={numberField.min}
-                max={numberField.max}
-                step={numberField.step}
-                disabled={numberField.disabled}
-                readOnly={numberField.readOnly}
-                aria-required={Boolean(numberField.required)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={getAriaDescribedBy(
-                  descriptionId,
-                  errorId,
-                  Boolean(numberField.description),
-                  Boolean(error),
-                )}
-                onBlur={onBlur}
-                onChange={(event) => {
-                  if (event.target.value === '') {
-                    onChange(undefined);
-                    return;
-                  }
-                  onChange(Number(event.target.value));
-                }}
-                style={sharedInputStyle}
-              />
+              <input id={inputId} aria-describedby={describedBy} {...inputProps} />
               <button
                 type="button"
                 onClick={() => applyDelta(numberField.step ?? 1)}
@@ -74,44 +74,14 @@ export const NumberField = forwardRef<HTMLInputElement, FieldComponentProps>(fun
                 +
               </button>
             </div>
-          ) : (
-            <input
-              id={inputId}
-              ref={ref}
-              type="number"
-              value={
-                typeof numericValue === 'number' && !Number.isNaN(numericValue) ? numericValue : ''
-              }
-              placeholder={numberField.placeholder}
-              min={numberField.min}
-              max={numberField.max}
-              step={numberField.step}
-              disabled={numberField.disabled}
-              readOnly={numberField.readOnly}
-              aria-required={Boolean(numberField.required)}
-              aria-invalid={Boolean(error)}
-              aria-describedby={getAriaDescribedBy(
-                descriptionId,
-                errorId,
-                Boolean(numberField.description),
-                Boolean(error),
-              )}
-              onBlur={onBlur}
-              onChange={(event) => {
-                if (event.target.value === '') {
-                  onChange(undefined);
-                  return;
-                }
-                onChange(Number(event.target.value));
-              }}
-              style={sharedInputStyle}
-            />
-          )}
-        </div>
-      )}
+          );
+        }
+
+        return <input id={inputId} aria-describedby={describedBy} {...inputProps} />;
+      }}
     </FieldChrome>
   );
-});
+}
 
 const stepButtonStyle: React.CSSProperties = {
   width: '2rem',

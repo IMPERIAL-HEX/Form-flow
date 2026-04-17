@@ -1,81 +1,82 @@
-import { forwardRef } from 'react';
-
 import type { FileUploadFieldSchema, FileValue } from '@formflow/core';
 
 import { FieldChrome } from './shared';
 import type { FieldComponentProps } from './types';
 
-export const FileUploadField = forwardRef<HTMLInputElement, FieldComponentProps>(
-  function FileUploadField({ field, value, error, onChange, onBlur }, ref) {
-    const fileField = field as FileUploadFieldSchema;
-    const files = normalizeFiles(value, fileField.multiple);
+export function FileUploadField({
+  field,
+  value,
+  error,
+  onChange,
+  onBlur,
+}: FieldComponentProps): React.ReactNode {
+  const fileField = field as FileUploadFieldSchema;
+  const files = normalizeFiles(value, fileField.multiple);
 
-    const applyFileList = (fileList: FileList | null): void => {
-      if (!fileList) {
-        onChange(fileField.multiple ? [] : undefined);
-        return;
-      }
+  const applyFileList = (fileList: FileList | null): void => {
+    if (!fileList) {
+      onChange(fileField.multiple ? [] : undefined);
+      return;
+    }
 
-      const nextFiles = Array.from(fileList).map<FileValue>((file) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      }));
+    const nextFiles = Array.from(fileList).map<FileValue>((file) => ({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    }));
 
-      onChange(fileField.multiple ? nextFiles : nextFiles[0]);
-    };
+    onChange(fileField.multiple ? nextFiles : nextFiles[0]);
+  };
 
-    return (
-      <FieldChrome field={field} error={error}>
-        {() => (
-          <div>
-            <label
-              style={{
-                display: 'grid',
-                placeItems: 'center',
-                minHeight: '7rem',
-                border: '1px dashed var(--ff-border)',
-                borderRadius: 'var(--ff-radius)',
-                background: 'var(--ff-bg-card)',
-                cursor: 'pointer',
-                padding: '0.75rem',
-                marginBottom: '0.75rem',
-              }}
-              onDrop={(event) => {
-                event.preventDefault();
-                applyFileList(event.dataTransfer.files);
-              }}
-              onDragOver={(event) => event.preventDefault()}
-            >
-              <input
-                ref={ref}
-                type="file"
-                multiple={fileField.multiple}
-                accept={fileField.accept?.join(',')}
-                onBlur={onBlur}
-                onChange={(event) => applyFileList(event.target.files)}
-                style={{ display: 'none' }}
-              />
-              <span style={{ color: 'var(--ff-text-muted)' }}>
-                Drop files here or click to browse
-              </span>
-            </label>
+  return (
+    <FieldChrome field={field} error={error}>
+      {() => (
+        <div>
+          <label
+            style={{
+              display: 'grid',
+              placeItems: 'center',
+              minHeight: '7rem',
+              border: '1px dashed var(--ff-border)',
+              borderRadius: 'var(--ff-radius)',
+              background: 'var(--ff-bg-card)',
+              cursor: 'pointer',
+              padding: '0.75rem',
+              marginBottom: '0.75rem',
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              applyFileList(event.dataTransfer.files);
+            }}
+            onDragOver={(event) => event.preventDefault()}
+          >
+            <input
+              type="file"
+              multiple={fileField.multiple}
+              accept={fileField.accept?.join(',')}
+              onBlur={onBlur}
+              onChange={(event) => applyFileList(event.target.files)}
+              style={{ display: 'none' }}
+            />
+            <span style={{ color: 'var(--ff-text-muted)' }}>
+              Drop files here or click to browse
+            </span>
+          </label>
 
-            {files.length > 0 ? (
-              <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
-                {files.map((file) => (
-                  <li key={`${file.name}-${file.size}`} style={{ marginBottom: '0.35rem' }}>
-                    {file.name} ({formatBytes(file.size)})
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
-        )}
-      </FieldChrome>
-    );
-  },
-);
+          {files.length > 0 ? (
+            <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+              {files.map((file) => (
+                <li key={`${file.name}-${file.size}`} style={{ marginBottom: '0.35rem' }}>
+                  {file.name} ({formatBytes(file.size)})
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      )}
+    </FieldChrome>
+  );
+}
 
 function normalizeFiles(value: unknown, multiple?: boolean): FileValue[] {
   if (Array.isArray(value)) {

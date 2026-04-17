@@ -1,14 +1,15 @@
-import { forwardRef } from 'react';
-
 import type { TextFieldSchema } from '@formflow/core';
 
 import { FieldChrome, getAriaDescribedBy, sharedInputStyle } from './shared';
 import type { FieldComponentProps } from './types';
 
-export const TextField = forwardRef<HTMLInputElement, FieldComponentProps>(function TextField(
-  { field, value, error, onChange, onBlur },
-  ref,
-) {
+export function TextField({
+  field,
+  value,
+  error,
+  onChange,
+  onBlur,
+}: FieldComponentProps): React.ReactNode {
   const textField = field as TextFieldSchema;
 
   return (
@@ -16,7 +17,6 @@ export const TextField = forwardRef<HTMLInputElement, FieldComponentProps>(funct
       {({ inputId, descriptionId, errorId }) => (
         <input
           id={inputId}
-          ref={ref}
           type="text"
           value={typeof value === 'string' ? value : ''}
           placeholder={textField.placeholder}
@@ -40,4 +40,4 @@ export const TextField = forwardRef<HTMLInputElement, FieldComponentProps>(funct
       )}
     </FieldChrome>
   );
-});
+}

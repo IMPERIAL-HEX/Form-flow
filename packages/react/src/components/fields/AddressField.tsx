@@ -1,14 +1,15 @@
-import { forwardRef } from 'react';
-
 import type { AddressFieldSchema, AddressValue } from '@formflow/core';
 
 import { FieldChrome, sharedInputStyle } from './shared';
 import type { FieldComponentProps } from './types';
 
-export const AddressField = forwardRef<HTMLInputElement, FieldComponentProps>(function AddressField(
-  { field, value, error, onChange, onBlur },
-  ref,
-) {
+export function AddressField({
+  field,
+  value,
+  error,
+  onChange,
+  onBlur,
+}: FieldComponentProps): React.ReactNode {
   const addressField = field as AddressFieldSchema;
   const address = normalizeAddress(value);
 
@@ -24,7 +25,6 @@ export const AddressField = forwardRef<HTMLInputElement, FieldComponentProps>(fu
       {() => (
         <div style={{ display: 'grid', gap: '0.625rem' }}>
           <input
-            ref={ref}
             type="text"
             placeholder="Address line 1"
             value={address.line1}
@@ -85,7 +85,7 @@ export const AddressField = forwardRef<HTMLInputElement, FieldComponentProps>(fu
       )}
     </FieldChrome>
   );
-});
+}
 
 function normalizeAddress(value: unknown): AddressValue {
   if (!value || typeof value !== 'object') {

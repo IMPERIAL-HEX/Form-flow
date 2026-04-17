@@ -1,3 +1,4 @@
+import { ghostButtonStyle, primaryButtonStyle } from './styles';
 import type { LayoutProps } from './types';
 
 export function TopStepperLayout({
@@ -91,20 +92,3 @@ export function TopStepperLayout({
   );
 }
 
-const primaryButtonStyle: React.CSSProperties = {
-  background: 'var(--ff-primary)',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 'var(--ff-radius)',
-  padding: '0.75rem 1.125rem',
-  cursor: 'pointer',
-};
-
-const ghostButtonStyle: React.CSSProperties = {
-  background: 'transparent',
-  color: 'var(--ff-text)',
-  border: '1px solid var(--ff-border)',
-  borderRadius: 'var(--ff-radius)',
-  padding: '0.75rem 1.125rem',
-  cursor: 'pointer',
-};

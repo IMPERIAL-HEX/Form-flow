@@ -1,0 +1,162 @@
+{
+    "id": "feedback-survey",
+    "version": "1.0.0",
+    "title": "Customer Feedback Survey",
+    "description": "Capture satisfaction and follow-up improvements after service completion.",
+    "layout": {
+        "template": "top-stepper",
+        "header": {
+            "title": "Service Feedback",
+            "subtitle": "Your feedback helps us improve faster",
+            "background": "gradient"
+        },
+        "footer": {
+            "nextLabel": "Next",
+            "submitLabel": "Submit Feedback"
+        }
+    },
+    "submission": {
+        "endpoint": "/api/submissions",
+        "method": "POST",
+        "transformKeys": true
+    },
+    "theme": {
+        "primaryColor": "#2563eb",
+        "borderRadius": "lg",
+        "mode": "light"
+    },
+    "steps": [
+        {
+            "id": "experience",
+            "title": "Experience",
+            "heading": "How was your experience?",
+            "fields": [
+                {
+                    "type": "select",
+                    "key": "experience.rating",
+                    "label": "Overall satisfaction",
+                    "required": true,
+                    "ui": {
+                        "variant": "icon-cards",
+                        "width": "full"
+                    },
+                    "options": [
+                        {
+                            "value": "excellent",
+                            "label": "Excellent"
+                        },
+                        {
+                            "value": "good",
+                            "label": "Good"
+                        },
+                        {
+                            "value": "average",
+                            "label": "Average"
+                        },
+                        {
+                            "value": "poor",
+                            "label": "Poor"
+                        }
+                    ]
+                },
+                {
+                    "type": "multi-select",
+                    "key": "experience.highlights",
+                    "label": "What stood out positively?",
+                    "required": true,
+                    "minSelections": 1,
+                    "ui": {
+                        "variant": "pill-buttons",
+                        "width": "full"
+                    },
+                    "options": [
+                        {
+                            "value": "speed",
+                            "label": "Speed"
+                        },
+                        {
+                            "value": "clarity",
+                            "label": "Clarity"
+                        },
+                        {
+                            "value": "support",
+                            "label": "Support"
+                        },
+                        {
+                            "value": "ux",
+                            "label": "UX"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "issues",
+            "title": "Issues",
+            "heading": "Did anything block you?",
+            "fields": [
+                {
+                    "type": "select",
+                    "key": "issues.hadIssues",
+                    "label": "Did you face any issues?",
+                    "required": true,
+                    "ui": {
+                        "variant": "radio-group",
+                        "width": "half"
+                    },
+                    "options": [
+                        {
+                            "value": "yes",
+                            "label": "Yes"
+                        },
+                        {
+                            "value": "no",
+                            "label": "No"
+                        }
+                    ]
+                },
+                {
+                    "type": "textarea",
+                    "key": "issues.details",
+                    "label": "Issue details",
+                    "required": true,
+                    "minLength": 10,
+                    "maxLength": 350,
+                    "showIf": {
+                        "field": "issues.hadIssues",
+                        "operator": "eq",
+                        "value": "yes"
+                    },
+                    "ui": {
+                        "width": "full"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "follow-up",
+            "title": "Follow-up",
+            "heading": "Can we follow up?",
+            "fields": [
+                {
+                    "type": "email",
+                    "key": "followup.email",
+                    "label": "Email for follow-up",
+                    "required": true,
+                    "ui": {
+                        "width": "full"
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "key": "followup.consent",
+                    "label": "I consent to follow-up communication.",
+                    "required": true,
+                    "ui": {
+                        "width": "full"
+                    }
+                }
+            ]
+        }
+    ]
+}

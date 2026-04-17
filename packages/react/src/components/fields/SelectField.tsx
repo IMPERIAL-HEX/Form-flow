@@ -1,14 +1,15 @@
-import { forwardRef } from 'react';
-
 import type { SelectFieldSchema } from '@formflow/core';
 
 import { FieldChrome, getAriaDescribedBy, sharedInputStyle } from './shared';
 import type { FieldComponentProps } from './types';
 
-export const SelectField = forwardRef<HTMLSelectElement, FieldComponentProps>(function SelectField(
-  { field, value, error, onChange, onBlur },
-  ref,
-) {
+export function SelectField({
+  field,
+  value,
+  error,
+  onChange,
+  onBlur,
+}: FieldComponentProps): React.ReactNode {
   const selectField = field as SelectFieldSchema;
   const selectedValue = typeof value === 'string' ? value : '';
   const variant = selectField.ui?.variant ?? 'dropdown';
@@ -16,21 +17,22 @@ export const SelectField = forwardRef<HTMLSelectElement, FieldComponentProps>(fu
   return (
     <FieldChrome field={field} error={error}>
       {({ inputId, descriptionId, errorId }) => {
+        const describedBy = getAriaDescribedBy(
+          descriptionId,
+          errorId,
+          Boolean(selectField.description),
+          Boolean(error),
+        );
+
         if (variant === 'dropdown') {
           return (
             <select
               id={inputId}
-              ref={ref}
               value={selectedValue}
               disabled={selectField.disabled || selectField.readOnly}
               aria-required={Boolean(selectField.required)}
               aria-invalid={Boolean(error)}
-              aria-describedby={getAriaDescribedBy(
-                descriptionId,
-                errorId,
-                Boolean(selectField.description),
-                Boolean(error),
-              )}
+              aria-describedby={describedBy}
               onBlur={onBlur}
               onChange={(event) => onChange(event.target.value)}
               style={sharedInputStyle}
@@ -47,15 +49,7 @@ export const SelectField = forwardRef<HTMLSelectElement, FieldComponentProps>(fu
 
         if (variant === 'radio-group') {
           return (
-            <div
-              role="radiogroup"
-              aria-describedby={getAriaDescribedBy(
-                descriptionId,
-                errorId,
-                Boolean(selectField.description),
-                Boolean(error),
-              )}
-            >
+            <div role="radiogroup" aria-describedby={describedBy}>
               {selectField.options.map((option) => (
                 <label
                   key={option.value}
@@ -123,4 +117,4 @@ export const SelectField = forwardRef<HTMLSelectElement, FieldComponentProps>(fu
       }}
     </FieldChrome>
   );
-});
+}

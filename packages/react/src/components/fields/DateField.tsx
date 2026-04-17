@@ -1,14 +1,15 @@
-import { forwardRef } from 'react';
-
 import type { DateFieldSchema } from '@formflow/core';
 
 import { FieldChrome, getAriaDescribedBy, sharedInputStyle } from './shared';
 import type { FieldComponentProps } from './types';
 
-export const DateField = forwardRef<HTMLInputElement, FieldComponentProps>(function DateField(
-  { field, value, error, onChange, onBlur },
-  ref,
-) {
+export function DateField({
+  field,
+  value,
+  error,
+  onChange,
+  onBlur,
+}: FieldComponentProps): React.ReactNode {
   const dateField = field as DateFieldSchema;
 
   return (
@@ -16,7 +17,6 @@ export const DateField = forwardRef<HTMLInputElement, FieldComponentProps>(funct
       {({ inputId, descriptionId, errorId }) => (
         <input
           id={inputId}
-          ref={ref}
           type="date"
           value={typeof value === 'string' ? value : ''}
           min={dateField.minDate}
@@ -38,4 +38,4 @@ export const DateField = forwardRef<HTMLInputElement, FieldComponentProps>(funct
       )}
     </FieldChrome>
   );
-});
+}
