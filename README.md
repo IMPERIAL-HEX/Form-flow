@@ -42,18 +42,18 @@ import { FormFlowRenderer } from '@formflow/react';
 import type { FormSchema } from '@formflow/core';
 
 export function LoanFlow({ schema }: { schema: FormSchema }) {
-	return (
-		<FormFlowRenderer
-			schema={schema}
-			onSubmit={async (payload) => {
-				await fetch('/api/submissions', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(payload),
-				});
-			}}
-		/>
-	);
+  return (
+    <FormFlowRenderer
+      schema={schema}
+      onSubmit={async (payload) => {
+        await fetch('/api/submissions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }}
+    />
+  );
 }
 ```
 
@@ -63,19 +63,17 @@ export function LoanFlow({ schema }: { schema: FormSchema }) {
 import { useFormFlow } from '@formflow/react';
 
 function CustomShell({ schema }: { schema: FormSchema }) {
-	const flow = useFormFlow({ schema });
+  const flow = useFormFlow({ schema });
 
-	return (
-		<div>
-			<h2>{flow.currentStep.title}</h2>
-			<button onClick={flow.previous} disabled={flow.isFirstStep}>
-				Previous
-			</button>
-			<button onClick={() => void flow.next()}>
-				{flow.isLastStep ? 'Submit' : 'Next'}
-			</button>
-		</div>
-	);
+  return (
+    <div>
+      <h2>{flow.currentStep.title}</h2>
+      <button onClick={flow.previous} disabled={flow.isFirstStep}>
+        Previous
+      </button>
+      <button onClick={() => void flow.next()}>{flow.isLastStep ? 'Submit' : 'Next'}</button>
+    </div>
+  );
 }
 ```
 
@@ -83,31 +81,31 @@ function CustomShell({ schema }: { schema: FormSchema }) {
 
 ```json
 {
-	"id": "education-loan",
-	"version": "1.0.0",
-	"layout": { "template": "sidebar-left" },
-	"submission": {
-		"endpoint": "/api/submissions",
-		"method": "POST",
-		"transformKeys": true
-	},
-	"steps": [
-		{
-			"id": "loan-amount",
-			"title": "Loan Amount",
-			"fields": [
-				{
-					"type": "currency",
-					"key": "loan.amount",
-					"label": "Requested amount",
-					"required": true,
-					"currency": "GBP",
-					"min": 1000,
-					"max": 10000
-				}
-			]
-		}
-	]
+  "id": "education-loan",
+  "version": "1.0.0",
+  "layout": { "template": "sidebar-left" },
+  "submission": {
+    "endpoint": "/api/submissions",
+    "method": "POST",
+    "transformKeys": true
+  },
+  "steps": [
+    {
+      "id": "loan-amount",
+      "title": "Loan Amount",
+      "fields": [
+        {
+          "type": "currency",
+          "key": "loan.amount",
+          "label": "Requested amount",
+          "required": true,
+          "currency": "GBP",
+          "min": 1000,
+          "max": 10000
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -115,10 +113,10 @@ function CustomShell({ schema }: { schema: FormSchema }) {
 
 ```html
 <iframe
-	src="https://your-domain/embed/education-loan?layout=sidebar-left&primaryColor=%230d9488"
-	width="100%"
-	height="920"
-	style="border:0"
+  src="https://your-domain/embed/education-loan?layout=sidebar-left&primaryColor=%230d9488"
+  width="100%"
+  height="920"
+  style="border:0"
 ></iframe>
 ```
 

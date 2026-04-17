@@ -1,7 +1,7 @@
 import type { FormSchema } from '@formflow/core';
 
-import { SectionFrame } from './SectionFrame';
 import { LiveDemoClient } from './LiveDemoClient';
+import { SectionFrame } from './SectionFrame';
 
 interface LiveDemoSectionProps {
   schema: FormSchema;
