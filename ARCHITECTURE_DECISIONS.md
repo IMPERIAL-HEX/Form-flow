@@ -21,7 +21,7 @@
 ## ADR-004: Branch Strategy
 
 - Status: Accepted
-- Decision: Vertical feature branches with PR + squash merge.
+- Decision: Vertical feature branches with PR + squash merge, using descriptive milestone names (for example, `feature/playground-and-embed`) and avoiding day-based names.
 - Rationale: Produces recruiter-readable, milestone-oriented history.
 
 ## ADR-005: Core Coverage Gate
