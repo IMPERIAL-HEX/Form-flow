@@ -1534,6 +1534,11 @@ fieldset.ff-builder-field-group {
   color: #0f172a;
 }
 
+.ff-analytics-kpi-card small {
+  color: #6b7280;
+  font-size: 0.76rem;
+}
+
 .ff-analytics-grid {
   display: grid;
   gap: 0.85rem;

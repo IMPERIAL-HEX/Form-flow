@@ -233,6 +233,21 @@ export default async function AnalyticsPage({
           <p>Snapshot generated</p>
           <strong>{formatTimestamp(overview.generatedAt)}</strong>
         </article>
+        <article className="ff-analytics-kpi-card">
+          <p>KYC approved rate</p>
+          <strong>{overview.kycSummary.approvedRate}%</strong>
+          <small>{overview.kycSummary.approvedCount} approved checks</small>
+        </article>
+        <article className="ff-analytics-kpi-card">
+          <p>KYC review rate</p>
+          <strong>{overview.kycSummary.reviewRate}%</strong>
+          <small>{overview.kycSummary.reviewCount} cases in review</small>
+        </article>
+        <article className="ff-analytics-kpi-card">
+          <p>KYC rejection rate</p>
+          <strong>{overview.kycSummary.rejectedRate}%</strong>
+          <small>{overview.kycSummary.rejectedCount} rejected checks</small>
+        </article>
       </section>
 
       <section className="ff-analytics-grid">

@@ -156,6 +156,12 @@ test.describe('api routes', () => {
 
     const json = (await response.json()) as {
       totalSubmissions: number;
+      kycSummary: {
+        eligibleTotal: number;
+        approvedRate: number;
+        reviewRate: number;
+        rejectedRate: number;
+      };
       sources: Array<{ source: string; count: number }>;
       kycDecisions: Array<{ decision: string; count: number }>;
       forms: Array<{ formId: string; count: number }>;
@@ -183,6 +189,10 @@ test.describe('api routes', () => {
         (event) => event.decision === 'review' || event.flaggedChecks.length >= 0,
       ),
     ).toBeTruthy();
+    expect(json.kycSummary.eligibleTotal).toBeGreaterThanOrEqual(0);
+    expect(json.kycSummary.approvedRate).toBeGreaterThanOrEqual(0);
+    expect(json.kycSummary.reviewRate).toBeGreaterThanOrEqual(0);
+    expect(json.kycSummary.rejectedRate).toBeGreaterThanOrEqual(0);
   });
 
   test('supports analytics filters through query parameters', async ({ request, baseURL }) => {

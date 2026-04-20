@@ -73,11 +73,22 @@ export interface AnalyticsOverview {
   maxFormCount: number;
   maxKycDecisionCount: number;
   formCatalog: FormCatalogItem[];
+  kycSummary: KycSummary;
   sources: SourceMetric[];
   forms: FormMetric[];
   kycDecisions: KycDecisionMetric[];
   recentKycEvents: KycEventSummary[];
   recentSubmissions: SubmissionRecord[];
+}
+
+export interface KycSummary {
+  eligibleTotal: number;
+  approvedCount: number;
+  reviewCount: number;
+  rejectedCount: number;
+  approvedRate: number;
+  reviewRate: number;
+  rejectedRate: number;
 }
 
 export interface KycEventSummary {
@@ -336,6 +347,37 @@ function mapKycEventSummary(event: KycVerificationResult): KycEventSummary {
   };
 }
 
+function buildKycSummary(
+  kycDecisionCounts: Map<SubmissionKycDecision, number>,
+): KycSummary {
+  const approvedCount = kycDecisionCounts.get('approved') ?? 0;
+  const reviewCount = kycDecisionCounts.get('review') ?? 0;
+  const rejectedCount = kycDecisionCounts.get('rejected') ?? 0;
+  const eligibleTotal = approvedCount + reviewCount + rejectedCount;
+
+  if (eligibleTotal === 0) {
+    return {
+      eligibleTotal,
+      approvedCount,
+      reviewCount,
+      rejectedCount,
+      approvedRate: 0,
+      reviewRate: 0,
+      rejectedRate: 0,
+    };
+  }
+
+  return {
+    eligibleTotal,
+    approvedCount,
+    reviewCount,
+    rejectedCount,
+    approvedRate: Math.round((approvedCount / eligibleTotal) * 100),
+    reviewRate: Math.round((reviewCount / eligibleTotal) * 100),
+    rejectedRate: Math.round((rejectedCount / eligibleTotal) * 100),
+  };
+}
+
 function unwrapPayload(payload: unknown): {
   formId: string;
   source: SubmissionSource;
@@ -490,6 +532,7 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
     1,
     ...KNOWN_KYC_DECISIONS.map((decision) => kycDecisionCounts.get(decision) ?? 0),
   );
+  const kycSummary = buildKycSummary(kycDecisionCounts);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -501,6 +544,7 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
     maxFormCount,
     maxKycDecisionCount,
     formCatalog,
+    kycSummary,
     sources: KNOWN_SOURCES.map((source) => ({
       source,
       count: sourceCounts.get(source) ?? 0,
