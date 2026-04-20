@@ -7,6 +7,7 @@ import type { FormSchema } from '@formflow/core';
 import { getPresetById, schemaPresets } from '@/lib/schemas/presetSchemas';
 import { parseSchemaText, prettyPrintSchema } from '@/lib/schemas/schemaUtils';
 
+import { ConditionBuilder } from './components/ConditionBuilder';
 import { ErrorPanel } from './components/ErrorPanel';
 import { PresetTabs } from './components/PresetTabs';
 import { PreviewPanel } from './components/PreviewPanel';
@@ -37,6 +38,10 @@ export function PlaygroundClient(): React.ReactNode {
     setSubmissionData(null);
   };
 
+  const handleConditionApply = (nextSchema: FormSchema): void => {
+    setEditorValue(prettyPrintSchema(nextSchema));
+  };
+
   return (
     <main className="ff-playground-page" data-ready={isReady ? 'true' : 'false'}>
       <header className="ff-playground-header">
@@ -65,6 +70,8 @@ export function PlaygroundClient(): React.ReactNode {
           onSubmit={(payload) => setSubmissionData(payload)}
         />
       </section>
+
+      <ConditionBuilder schema={schema} onApply={handleConditionApply} />
     </main>
   );
 }
