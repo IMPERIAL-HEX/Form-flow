@@ -81,4 +81,48 @@ test.describe('api routes', () => {
       ),
     ).toBeTruthy();
   });
+
+  test('supports analytics filters through query parameters', async ({ request, baseURL }) => {
+    const uniqueFormId = `e2e-filter-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+
+    await request.post(`${baseURL}${routes.apiSubmissions}`, {
+      data: {
+        formId: uniqueFormId,
+        source: 'demo',
+        payload: {
+          sample: true,
+          loanAmount: 6200,
+        },
+      },
+    });
+
+    const sourceFiltered = await request.get(
+      `${baseURL}${routes.apiAnalyticsOverview}?source=demo&window=24h`,
+    );
+    expect(sourceFiltered.ok()).toBeTruthy();
+
+    const sourceJson = (await sourceFiltered.json()) as {
+      filters: { source: string; window: string };
+      recentSubmissions: Array<{ source: string }>;
+    };
+
+    expect(sourceJson.filters.source).toBe('demo');
+    expect(sourceJson.filters.window).toBe('24h');
+    expect(sourceJson.recentSubmissions.every((entry) => entry.source === 'demo')).toBeTruthy();
+
+    const formFiltered = await request.get(
+      `${baseURL}${routes.apiAnalyticsOverview}?formId=${uniqueFormId}&window=24h`,
+    );
+    expect(formFiltered.ok()).toBeTruthy();
+
+    const formJson = (await formFiltered.json()) as {
+      filters: { formId: string };
+      totalSubmissions: number;
+      recentSubmissions: Array<{ formId: string }>;
+    };
+
+    expect(formJson.filters.formId).toBe(uniqueFormId);
+    expect(formJson.totalSubmissions).toBeGreaterThanOrEqual(1);
+    expect(formJson.recentSubmissions.every((entry) => entry.formId === uniqueFormId)).toBeTruthy();
+  });
 });

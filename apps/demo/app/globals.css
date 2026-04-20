@@ -1421,6 +1421,93 @@ fieldset.ff-builder-field-group {
   gap: 0.5rem;
 }
 
+.ff-analytics-filters {
+  border: 1px solid #d1d5db;
+  border-radius: 0.85rem;
+  background: #ffffff;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ff-analytics-filter-window-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.ff-analytics-filter-chip {
+  text-decoration: none;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: #f9fafb;
+  color: #1f2937;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.ff-analytics-filter-chip-active {
+  border-color: #14b8a6;
+  background: #ecfeff;
+  color: #0f766e;
+}
+
+.ff-analytics-filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.ff-analytics-filter-field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: #374151;
+  min-width: 220px;
+}
+
+.ff-analytics-filter-select {
+  border: 1px solid #d1d5db;
+  border-radius: 0.55rem;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.85rem;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.ff-analytics-filter-select:focus {
+  outline: 2px solid #14b8a6;
+  outline-offset: 1px;
+}
+
+.ff-analytics-filter-submit {
+  border: 1px solid #0f766e;
+  border-radius: 0.55rem;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+}
+
+.ff-analytics-filter-submit:hover {
+  background: #0d6660;
+}
+
+.ff-analytics-filter-reset {
+  text-decoration: none;
+  border: 1px solid #d1d5db;
+  border-radius: 0.55rem;
+  background: #ffffff;
+  color: #4b5563;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+}
+
 .ff-analytics-kpi-grid {
   display: grid;
   gap: 0.75rem;
@@ -1491,6 +1578,14 @@ fieldset.ff-builder-field-group {
   border-radius: 0.6rem;
   padding: 0.55rem 0.7rem;
   background: #f9fafb;
+}
+
+.ff-analytics-source-content {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ff-analytics-source-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1531,6 +1626,23 @@ fieldset.ff-builder-field-group {
   margin: 0.2rem 0 0;
   font-size: 0.8rem;
   color: #4b5563;
+}
+
+.ff-analytics-meter {
+  margin-top: 0.35rem;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  height: 0.38rem;
+  overflow: hidden;
+}
+
+.ff-analytics-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #14b8a6 0%, #0ea5e9 100%);
 }
 
 .ff-analytics-form-metrics {
@@ -1622,6 +1734,10 @@ fieldset.ff-builder-field-group {
 
   .ff-analytics-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ff-analytics-filter-field {
+    min-width: 180px;
   }
 
   .ff-editor {

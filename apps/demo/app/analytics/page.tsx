@@ -4,6 +4,15 @@ import { getAnalyticsOverview } from '@/lib/analytics/submissionsStore';
 
 export const dynamic = 'force-dynamic';
 
+const WINDOW_OPTIONS = [
+  { value: 'all', label: 'All time' },
+  { value: '24h', label: 'Last 24 hours' },
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+] as const;
+
+type SearchParamValue = string | string[] | undefined;
+
 function formatTimestamp(value: string | null): string {
   if (!value) {
     return 'No submissions yet';
@@ -19,8 +28,52 @@ function formatSource(source: string): string {
   return source.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-export default function AnalyticsPage(): React.ReactNode {
-  const overview = getAnalyticsOverview();
+function getSingleSearchParam(value: SearchParamValue): string | undefined {
+  if (typeof value === 'string' && value.length > 0) {
+    return value;
+  }
+
+  return undefined;
+}
+
+function toPercent(value: number, maxValue: number): number {
+  if (maxValue <= 0) {
+    return 0;
+  }
+
+  return Math.round((value / maxValue) * 100);
+}
+
+function buildAnalyticsHref(filters: { formId: string; source: string; window: string }): string {
+  const params = new URLSearchParams();
+
+  if (filters.formId !== 'all') {
+    params.set('formId', filters.formId);
+  }
+
+  if (filters.source !== 'all') {
+    params.set('source', filters.source);
+  }
+
+  if (filters.window !== 'all') {
+    params.set('window', filters.window);
+  }
+
+  const query = params.toString();
+  return query.length > 0 ? `/analytics?${query}` : '/analytics';
+}
+
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, SearchParamValue>>;
+}): Promise<React.ReactNode> {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const overview = getAnalyticsOverview({
+    formId: getSingleSearchParam(resolvedSearchParams?.formId),
+    source: getSingleSearchParam(resolvedSearchParams?.source),
+    window: getSingleSearchParam(resolvedSearchParams?.window),
+  });
   const activeForms = overview.forms.filter((form) => form.count > 0).length;
 
   return (
@@ -44,6 +97,72 @@ export default function AnalyticsPage(): React.ReactNode {
           </Link>
         </div>
       </header>
+
+      <section className="ff-analytics-filters" aria-label="Analytics filters">
+        <div className="ff-analytics-filter-window-row">
+          {WINDOW_OPTIONS.map((option) => (
+            <Link
+              key={option.value}
+              href={buildAnalyticsHref({
+                formId: overview.filters.formId,
+                source: overview.filters.source,
+                window: option.value,
+              })}
+              className={`ff-analytics-filter-chip ${
+                overview.filters.window === option.value ? 'ff-analytics-filter-chip-active' : ''
+              }`}
+            >
+              {option.label}
+            </Link>
+          ))}
+        </div>
+
+        <form method="get" className="ff-analytics-filter-form">
+          <label className="ff-analytics-filter-field" htmlFor="analytics-form-filter">
+            Form
+            <select
+              id="analytics-form-filter"
+              name="formId"
+              defaultValue={overview.filters.formId}
+              className="ff-analytics-filter-select"
+            >
+              <option value="all">All forms</option>
+              {overview.formCatalog.map((form) => (
+                <option key={form.formId} value={form.formId}>
+                  {form.title} ({form.formId})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="ff-analytics-filter-field" htmlFor="analytics-source-filter">
+            Source
+            <select
+              id="analytics-source-filter"
+              name="source"
+              defaultValue={overview.filters.source}
+              className="ff-analytics-filter-select"
+            >
+              <option value="all">All sources</option>
+              {overview.sources.map((source) => (
+                <option key={source.source} value={source.source}>
+                  {formatSource(source.source)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <input type="hidden" name="window" value={overview.filters.window} />
+
+          <button type="submit" className="ff-analytics-filter-submit">
+            Apply filters
+          </button>
+
+          <Link href="/analytics" className="ff-analytics-filter-reset">
+            Reset
+          </Link>
+        </form>
+      </section>
 
       <section className="ff-analytics-kpi-grid" aria-label="Analytics overview">
         <article className="ff-analytics-kpi-card">
@@ -73,8 +192,18 @@ export default function AnalyticsPage(): React.ReactNode {
           <ul className="ff-analytics-source-list">
             {overview.sources.map((metric) => (
               <li key={metric.source} className="ff-analytics-source-item">
-                <span>{formatSource(metric.source)}</span>
-                <strong>{metric.count}</strong>
+                <div className="ff-analytics-source-content">
+                  <div className="ff-analytics-source-row">
+                    <span>{formatSource(metric.source)}</span>
+                    <strong>{metric.count}</strong>
+                  </div>
+                  <div className="ff-analytics-meter" aria-hidden="true">
+                    <span
+                      className="ff-analytics-meter-fill"
+                      style={{ width: `${toPercent(metric.count, overview.maxSourceCount)}%` }}
+                    />
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
@@ -91,6 +220,12 @@ export default function AnalyticsPage(): React.ReactNode {
                 <div>
                   <p className="ff-analytics-form-title">{form.title}</p>
                   <p className="ff-analytics-form-id">{form.formId}</p>
+                  <div className="ff-analytics-meter" aria-hidden="true">
+                    <span
+                      className="ff-analytics-meter-fill"
+                      style={{ width: `${toPercent(form.count, overview.maxFormCount)}%` }}
+                    />
+                  </div>
                 </div>
                 <div className="ff-analytics-form-metrics">
                   <strong>{form.count}</strong>

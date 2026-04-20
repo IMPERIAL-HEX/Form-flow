@@ -4,8 +4,11 @@ import { schemaPresets } from '@/lib/schemas/presetSchemas';
 
 const FORM_ID_PATTERN = /^[a-zA-Z0-9-]+$/;
 const KNOWN_SOURCES = ['demo', 'embed', 'playground', 'api', 'unknown'] as const;
+const ANALYTICS_WINDOWS = ['24h', '7d', '30d', 'all'] as const;
 
 export type SubmissionSource = (typeof KNOWN_SOURCES)[number];
+export type AnalyticsWindow = (typeof ANALYTICS_WINDOWS)[number];
+export type AnalyticsSourceFilter = SubmissionSource | 'all';
 
 export interface SubmissionRecord {
   id: string;
@@ -28,10 +31,31 @@ export interface FormMetric {
   lastSubmissionAt: string | null;
 }
 
+export interface AnalyticsFilters {
+  formId: string;
+  source: AnalyticsSourceFilter;
+  window: AnalyticsWindow;
+}
+
+interface AnalyticsFilterInput {
+  formId?: unknown;
+  source?: unknown;
+  window?: unknown;
+}
+
+export interface FormCatalogItem {
+  formId: string;
+  title: string;
+}
+
 export interface AnalyticsOverview {
   generatedAt: string;
+  filters: AnalyticsFilters;
   totalSubmissions: number;
   lastSubmissionAt: string | null;
+  maxSourceCount: number;
+  maxFormCount: number;
+  formCatalog: FormCatalogItem[];
   sources: SourceMetric[];
   forms: FormMetric[];
   recentSubmissions: SubmissionRecord[];
@@ -82,6 +106,105 @@ function normalizeSource(raw: unknown): SubmissionSource {
   }
 
   return 'unknown';
+}
+
+function normalizeSourceFilter(raw: unknown): AnalyticsSourceFilter {
+  if (typeof raw !== 'string') {
+    return 'all';
+  }
+
+  const source = raw.trim();
+  if (source === 'all') {
+    return 'all';
+  }
+
+  if (KNOWN_SOURCES.includes(source as SubmissionSource)) {
+    return source as SubmissionSource;
+  }
+
+  return 'all';
+}
+
+function normalizeWindow(raw: unknown): AnalyticsWindow {
+  if (typeof raw !== 'string') {
+    return 'all';
+  }
+
+  const window = raw.trim();
+  if (ANALYTICS_WINDOWS.includes(window as AnalyticsWindow)) {
+    return window as AnalyticsWindow;
+  }
+
+  return 'all';
+}
+
+function normalizeFormFilter(raw: unknown): string {
+  if (typeof raw !== 'string') {
+    return 'all';
+  }
+
+  const formId = raw.trim();
+  if (formId === 'all') {
+    return 'all';
+  }
+
+  if (!FORM_ID_PATTERN.test(formId)) {
+    return 'all';
+  }
+
+  return formId;
+}
+
+function resolveFilters(filters?: AnalyticsFilterInput): AnalyticsFilters {
+  return {
+    formId: normalizeFormFilter(filters?.formId),
+    source: normalizeSourceFilter(filters?.source),
+    window: normalizeWindow(filters?.window),
+  };
+}
+
+function getWindowCutoff(window: AnalyticsWindow): number | null {
+  const now = Date.now();
+
+  if (window === '24h') {
+    return now - 24 * 60 * 60 * 1000;
+  }
+
+  if (window === '7d') {
+    return now - 7 * 24 * 60 * 60 * 1000;
+  }
+
+  if (window === '30d') {
+    return now - 30 * 24 * 60 * 60 * 1000;
+  }
+
+  return null;
+}
+
+function applySubmissionFilters(
+  submissions: SubmissionRecord[],
+  filters: AnalyticsFilters,
+): SubmissionRecord[] {
+  const cutoff = getWindowCutoff(filters.window);
+
+  return submissions.filter((submission) => {
+    if (filters.formId !== 'all' && submission.formId !== filters.formId) {
+      return false;
+    }
+
+    if (filters.source !== 'all' && submission.source !== filters.source) {
+      return false;
+    }
+
+    if (cutoff !== null) {
+      const receivedAt = new Date(submission.receivedAt).getTime();
+      if (!Number.isFinite(receivedAt) || receivedAt < cutoff) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 }
 
 function unwrapPayload(payload: unknown): {
@@ -147,9 +270,11 @@ export function recordSubmission(payload: unknown): SubmissionRecord {
   return record;
 }
 
-export function getAnalyticsOverview(): AnalyticsOverview {
+export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsOverview {
   const store = getStore();
-  const submissions = store.submissions;
+  const allSubmissions = store.submissions;
+  const resolvedFilters = resolveFilters(filters);
+  const submissions = applySubmissionFilters(allSubmissions, resolvedFilters);
   const knownForms = new Map(schemaPresets.map((preset) => [preset.id, preset.title]));
 
   const sourceCounts = new Map<SubmissionSource, number>(
@@ -164,12 +289,29 @@ export function getAnalyticsOverview(): AnalyticsOverview {
     formLastSeen.set(submission.formId, submission.receivedAt);
   }
 
+  const formCatalogMap = new Map<string, string>(knownForms);
+  for (const submission of allSubmissions) {
+    if (!formCatalogMap.has(submission.formId)) {
+      formCatalogMap.set(
+        submission.formId,
+        submission.formId === 'unknown' ? 'Unknown form' : 'Custom form',
+      );
+    }
+  }
+
+  const formCatalog: FormCatalogItem[] = [...formCatalogMap.entries()]
+    .map(([formId, title]) => ({ formId, title }))
+    .sort((left, right) => left.formId.localeCompare(right.formId));
+
+  const includeZeroCountKnownForms = resolvedFilters.formId === 'all';
+
   const forms: FormMetric[] = [...knownForms.entries()].map(([formId, title]) => ({
     formId,
     title,
     count: formCounts.get(formId) ?? 0,
     lastSubmissionAt: formLastSeen.get(formId) ?? null,
-  }));
+  }))
+    .filter((entry) => includeZeroCountKnownForms || entry.count > 0);
 
   for (const [formId, count] of formCounts.entries()) {
     if (knownForms.has(formId)) {
@@ -193,11 +335,17 @@ export function getAnalyticsOverview(): AnalyticsOverview {
   });
 
   const recentSubmissions = [...submissions].slice(-10).reverse();
+  const maxSourceCount = Math.max(1, ...KNOWN_SOURCES.map((source) => sourceCounts.get(source) ?? 0));
+  const maxFormCount = Math.max(1, ...forms.map((form) => form.count));
 
   return {
     generatedAt: new Date().toISOString(),
+    filters: resolvedFilters,
     totalSubmissions: submissions.length,
     lastSubmissionAt: submissions.length > 0 ? submissions[submissions.length - 1]?.receivedAt ?? null : null,
+    maxSourceCount,
+    maxFormCount,
+    formCatalog,
     sources: KNOWN_SOURCES.map((source) => ({
       source,
       count: sourceCounts.get(source) ?? 0,
