@@ -49,7 +49,9 @@ test.describe('api routes', () => {
     expect(typeof json.id).toBe('string');
     expect(json.kyc?.decision).toBe('approved');
     expect(
-      json.kyc?.checks.some((check) => check.code === 'identity-document' && check.status === 'pass'),
+      json.kyc?.checks.some(
+        (check) => check.code === 'identity-document' && check.status === 'pass',
+      ),
     ).toBeTruthy();
   });
 
@@ -92,7 +94,9 @@ test.describe('api routes', () => {
     expect(json.verification.provider).toBe('mock-kyc-v1');
     expect(json.verification.decision).toBe('approved');
     expect(
-      json.verification.checks.some((check) => check.code === 'income-proof' && check.status === 'pass'),
+      json.verification.checks.some(
+        (check) => check.code === 'income-proof' && check.status === 'pass',
+      ),
     ).toBeTruthy();
   });
 
@@ -118,7 +122,9 @@ test.describe('api routes', () => {
     expect(json.events.some((event) => event.formId === 'contact-form')).toBeTruthy();
     expect(
       json.events.some(
-        (event) => event.decision === 'not-required' && event.checks.some((check) => check.code === 'kyc-applicability'),
+        (event) =>
+          event.decision === 'not-required' &&
+          event.checks.some((check) => check.code === 'kyc-applicability'),
       ),
     ).toBeTruthy();
   });
@@ -151,8 +157,9 @@ test.describe('api routes', () => {
     const json = (await response.json()) as {
       totalSubmissions: number;
       sources: Array<{ source: string; count: number }>;
+      kycDecisions: Array<{ decision: string; count: number }>;
       forms: Array<{ formId: string; count: number }>;
-      recentSubmissions: Array<{ formId: string; source: string }>;
+      recentSubmissions: Array<{ formId: string; source: string; kycDecision: string }>;
     };
 
     expect(json.totalSubmissions).toBeGreaterThanOrEqual(2);
@@ -168,6 +175,7 @@ test.describe('api routes', () => {
           (entry.source === 'demo' || entry.source === 'embed'),
       ),
     ).toBeTruthy();
+    expect(json.kycDecisions.some((entry) => entry.count >= 1)).toBeTruthy();
   });
 
   test('supports analytics filters through query parameters', async ({ request, baseURL }) => {
@@ -197,6 +205,21 @@ test.describe('api routes', () => {
     expect(sourceJson.filters.source).toBe('demo');
     expect(sourceJson.filters.window).toBe('24h');
     expect(sourceJson.recentSubmissions.every((entry) => entry.source === 'demo')).toBeTruthy();
+
+    const kycFiltered = await request.get(
+      `${baseURL}${routes.apiAnalyticsOverview}?kycDecision=not-required&window=24h`,
+    );
+    expect(kycFiltered.ok()).toBeTruthy();
+
+    const kycJson = (await kycFiltered.json()) as {
+      filters: { kycDecision: string };
+      recentSubmissions: Array<{ kycDecision: string }>;
+    };
+
+    expect(kycJson.filters.kycDecision).toBe('not-required');
+    expect(
+      kycJson.recentSubmissions.every((entry) => entry.kycDecision === 'not-required'),
+    ).toBeTruthy();
 
     const formFiltered = await request.get(
       `${baseURL}${routes.apiAnalyticsOverview}?formId=${uniqueFormId}&window=24h`,

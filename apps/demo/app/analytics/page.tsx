@@ -28,6 +28,10 @@ function formatSource(source: string): string {
   return source.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function formatKycDecision(decision: string): string {
+  return decision.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 function getSingleSearchParam(value: SearchParamValue): string | undefined {
   if (typeof value === 'string' && value.length > 0) {
     return value;
@@ -44,7 +48,12 @@ function toPercent(value: number, maxValue: number): number {
   return Math.round((value / maxValue) * 100);
 }
 
-function buildAnalyticsHref(filters: { formId: string; source: string; window: string }): string {
+function buildAnalyticsHref(filters: {
+  formId: string;
+  source: string;
+  window: string;
+  kycDecision: string;
+}): string {
   const params = new URLSearchParams();
 
   if (filters.formId !== 'all') {
@@ -57,6 +66,10 @@ function buildAnalyticsHref(filters: { formId: string; source: string; window: s
 
   if (filters.window !== 'all') {
     params.set('window', filters.window);
+  }
+
+  if (filters.kycDecision !== 'all') {
+    params.set('kycDecision', filters.kycDecision);
   }
 
   const query = params.toString();
@@ -73,6 +86,7 @@ export default async function AnalyticsPage({
     formId: getSingleSearchParam(resolvedSearchParams?.formId),
     source: getSingleSearchParam(resolvedSearchParams?.source),
     window: getSingleSearchParam(resolvedSearchParams?.window),
+    kycDecision: getSingleSearchParam(resolvedSearchParams?.kycDecision),
   });
   const activeForms = overview.forms.filter((form) => form.count > 0).length;
 
@@ -107,6 +121,7 @@ export default async function AnalyticsPage({
                 formId: overview.filters.formId,
                 source: overview.filters.source,
                 window: option.value,
+                kycDecision: overview.filters.kycDecision,
               })}
               className={`ff-analytics-filter-chip ${
                 overview.filters.window === option.value ? 'ff-analytics-filter-chip-active' : ''
@@ -147,6 +162,23 @@ export default async function AnalyticsPage({
               {overview.sources.map((source) => (
                 <option key={source.source} value={source.source}>
                   {formatSource(source.source)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="ff-analytics-filter-field" htmlFor="analytics-kyc-filter">
+            KYC Decision
+            <select
+              id="analytics-kyc-filter"
+              name="kycDecision"
+              defaultValue={overview.filters.kycDecision}
+              className="ff-analytics-filter-select"
+            >
+              <option value="all">All KYC outcomes</option>
+              {overview.kycDecisions.map((entry) => (
+                <option key={entry.decision} value={entry.decision}>
+                  {formatKycDecision(entry.decision)}
                 </option>
               ))}
             </select>
@@ -235,6 +267,31 @@ export default async function AnalyticsPage({
             ))}
           </div>
         </article>
+
+        <article className="ff-analytics-panel" aria-label="KYC decisions">
+          <header className="ff-analytics-panel-header">
+            <h2>KYC decisions</h2>
+            <p>Distribution of verification outcomes for the active filters.</p>
+          </header>
+          <ul className="ff-analytics-source-list">
+            {overview.kycDecisions.map((metric) => (
+              <li key={metric.decision} className="ff-analytics-source-item">
+                <div className="ff-analytics-source-content">
+                  <div className="ff-analytics-source-row">
+                    <span>{formatKycDecision(metric.decision)}</span>
+                    <strong>{metric.count}</strong>
+                  </div>
+                  <div className="ff-analytics-meter" aria-hidden="true">
+                    <span
+                      className="ff-analytics-meter-fill"
+                      style={{ width: `${toPercent(metric.count, overview.maxKycDecisionCount)}%` }}
+                    />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </article>
       </section>
 
       <section className="ff-analytics-panel" aria-label="Recent submissions">
@@ -255,6 +312,7 @@ export default async function AnalyticsPage({
                   <th>Time</th>
                   <th>Form</th>
                   <th>Source</th>
+                  <th>KYC</th>
                   <th>Fields</th>
                   <th>Bytes</th>
                 </tr>
@@ -265,6 +323,7 @@ export default async function AnalyticsPage({
                     <td>{formatTimestamp(entry.receivedAt)}</td>
                     <td>{entry.formId}</td>
                     <td>{formatSource(entry.source)}</td>
+                    <td>{formatKycDecision(entry.kycDecision)}</td>
                     <td>{entry.payloadFieldCount}</td>
                     <td>{entry.payloadBytes}</td>
                   </tr>

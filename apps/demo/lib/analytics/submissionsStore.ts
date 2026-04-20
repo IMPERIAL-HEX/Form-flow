@@ -1,19 +1,24 @@
 import 'server-only';
 
 import { schemaPresets } from '@/lib/schemas/presetSchemas';
+import type { KycDecision } from '@/lib/kyc/verificationService';
 
 const FORM_ID_PATTERN = /^[a-zA-Z0-9-]+$/;
 const KNOWN_SOURCES = ['demo', 'embed', 'playground', 'api', 'unknown'] as const;
 const ANALYTICS_WINDOWS = ['24h', '7d', '30d', 'all'] as const;
+const KNOWN_KYC_DECISIONS = ['approved', 'review', 'rejected', 'not-required', 'unknown'] as const;
 
 export type SubmissionSource = (typeof KNOWN_SOURCES)[number];
 export type AnalyticsWindow = (typeof ANALYTICS_WINDOWS)[number];
 export type AnalyticsSourceFilter = SubmissionSource | 'all';
+export type SubmissionKycDecision = (typeof KNOWN_KYC_DECISIONS)[number];
+export type AnalyticsKycDecisionFilter = KycDecision | 'all';
 
 export interface SubmissionRecord {
   id: string;
   formId: string;
   source: SubmissionSource;
+  kycDecision: SubmissionKycDecision;
   receivedAt: string;
   payloadFieldCount: number;
   payloadBytes: number;
@@ -31,16 +36,23 @@ export interface FormMetric {
   lastSubmissionAt: string | null;
 }
 
+export interface KycDecisionMetric {
+  decision: SubmissionKycDecision;
+  count: number;
+}
+
 export interface AnalyticsFilters {
   formId: string;
   source: AnalyticsSourceFilter;
   window: AnalyticsWindow;
+  kycDecision: AnalyticsKycDecisionFilter;
 }
 
 interface AnalyticsFilterInput {
   formId?: unknown;
   source?: unknown;
   window?: unknown;
+  kycDecision?: unknown;
 }
 
 export interface FormCatalogItem {
@@ -55,9 +67,11 @@ export interface AnalyticsOverview {
   lastSubmissionAt: string | null;
   maxSourceCount: number;
   maxFormCount: number;
+  maxKycDecisionCount: number;
   formCatalog: FormCatalogItem[];
   sources: SourceMetric[];
   forms: FormMetric[];
+  kycDecisions: KycDecisionMetric[];
   recentSubmissions: SubmissionRecord[];
 }
 
@@ -108,6 +122,19 @@ function normalizeSource(raw: unknown): SubmissionSource {
   return 'unknown';
 }
 
+function normalizeKycDecision(raw: unknown): SubmissionKycDecision {
+  if (typeof raw !== 'string') {
+    return 'unknown';
+  }
+
+  const decision = raw.trim();
+  if (KNOWN_KYC_DECISIONS.includes(decision as SubmissionKycDecision)) {
+    return decision as SubmissionKycDecision;
+  }
+
+  return 'unknown';
+}
+
 function normalizeSourceFilter(raw: unknown): AnalyticsSourceFilter {
   if (typeof raw !== 'string') {
     return 'all';
@@ -138,6 +165,23 @@ function normalizeWindow(raw: unknown): AnalyticsWindow {
   return 'all';
 }
 
+function normalizeKycDecisionFilter(raw: unknown): AnalyticsKycDecisionFilter {
+  if (typeof raw !== 'string') {
+    return 'all';
+  }
+
+  const decision = raw.trim();
+  if (decision === 'all') {
+    return 'all';
+  }
+
+  if (decision === 'approved' || decision === 'review' || decision === 'rejected' || decision === 'not-required') {
+    return decision;
+  }
+
+  return 'all';
+}
+
 function normalizeFormFilter(raw: unknown): string {
   if (typeof raw !== 'string') {
     return 'all';
@@ -160,6 +204,7 @@ function resolveFilters(filters?: AnalyticsFilterInput): AnalyticsFilters {
     formId: normalizeFormFilter(filters?.formId),
     source: normalizeSourceFilter(filters?.source),
     window: normalizeWindow(filters?.window),
+    kycDecision: normalizeKycDecisionFilter(filters?.kycDecision),
   };
 }
 
@@ -193,6 +238,10 @@ function applySubmissionFilters(
     }
 
     if (filters.source !== 'all' && submission.source !== filters.source) {
+      return false;
+    }
+
+    if (filters.kycDecision !== 'all' && submission.kycDecision !== filters.kycDecision) {
       return false;
     }
 
@@ -236,6 +285,10 @@ function unwrapPayload(payload: unknown): {
   };
 }
 
+interface RecordSubmissionOptions {
+  kycDecision?: unknown;
+}
+
 function countPayloadFields(data: unknown): number {
   if (!isRecord(data)) {
     return 0;
@@ -252,13 +305,14 @@ function measurePayloadBytes(data: unknown): number {
   }
 }
 
-export function recordSubmission(payload: unknown): SubmissionRecord {
+export function recordSubmission(payload: unknown, options?: RecordSubmissionOptions): SubmissionRecord {
   const { formId, source, data } = unwrapPayload(payload);
 
   const record: SubmissionRecord = {
     id: crypto.randomUUID(),
     formId,
     source,
+    kycDecision: normalizeKycDecision(options?.kycDecision),
     receivedAt: new Date().toISOString(),
     payloadFieldCount: countPayloadFields(data),
     payloadBytes: measurePayloadBytes(data),
@@ -280,11 +334,18 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
   const sourceCounts = new Map<SubmissionSource, number>(
     KNOWN_SOURCES.map((source) => [source, 0]),
   );
+  const kycDecisionCounts = new Map<SubmissionKycDecision, number>(
+    KNOWN_KYC_DECISIONS.map((decision) => [decision, 0]),
+  );
   const formCounts = new Map<string, number>();
   const formLastSeen = new Map<string, string>();
 
   for (const submission of submissions) {
     sourceCounts.set(submission.source, (sourceCounts.get(submission.source) ?? 0) + 1);
+    kycDecisionCounts.set(
+      submission.kycDecision,
+      (kycDecisionCounts.get(submission.kycDecision) ?? 0) + 1,
+    );
     formCounts.set(submission.formId, (formCounts.get(submission.formId) ?? 0) + 1);
     formLastSeen.set(submission.formId, submission.receivedAt);
   }
@@ -341,6 +402,10 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
     ...KNOWN_SOURCES.map((source) => sourceCounts.get(source) ?? 0),
   );
   const maxFormCount = Math.max(1, ...forms.map((form) => form.count));
+  const maxKycDecisionCount = Math.max(
+    1,
+    ...KNOWN_KYC_DECISIONS.map((decision) => kycDecisionCounts.get(decision) ?? 0),
+  );
 
   return {
     generatedAt: new Date().toISOString(),
@@ -350,12 +415,17 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
       submissions.length > 0 ? (submissions[submissions.length - 1]?.receivedAt ?? null) : null,
     maxSourceCount,
     maxFormCount,
+    maxKycDecisionCount,
     formCatalog,
     sources: KNOWN_SOURCES.map((source) => ({
       source,
       count: sourceCounts.get(source) ?? 0,
     })),
     forms,
+    kycDecisions: KNOWN_KYC_DECISIONS.map((decision) => ({
+      decision,
+      count: kycDecisionCounts.get(decision) ?? 0,
+    })),
     recentSubmissions,
   };
 }

@@ -18,8 +18,10 @@ export async function POST(request: Request): Promise<Response> {
 
   console.log('[FormFlow Submission]', JSON.stringify(payload, null, 2));
 
-  const record = recordSubmission(payload);
   const kyc = verifySubmissionKyc(payload);
+  const record = recordSubmission(payload, {
+    kycDecision: kyc.decision,
+  });
 
   return Response.json({
     success: true,
