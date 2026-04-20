@@ -66,18 +66,16 @@ test.describe('api routes', () => {
     };
 
     expect(json.totalSubmissions).toBeGreaterThanOrEqual(2);
-    expect(
-      json.sources.some((entry) => entry.source === 'demo' && entry.count >= 1),
-    ).toBeTruthy();
-    expect(
-      json.sources.some((entry) => entry.source === 'embed' && entry.count >= 1),
-    ).toBeTruthy();
+    expect(json.sources.some((entry) => entry.source === 'demo' && entry.count >= 1)).toBeTruthy();
+    expect(json.sources.some((entry) => entry.source === 'embed' && entry.count >= 1)).toBeTruthy();
     expect(
       json.forms.some((entry) => entry.formId === 'education-loan' && entry.count >= 2),
     ).toBeTruthy();
     expect(
       json.recentSubmissions.some(
-        (entry) => entry.formId === 'education-loan' && (entry.source === 'demo' || entry.source === 'embed'),
+        (entry) =>
+          entry.formId === 'education-loan' &&
+          (entry.source === 'demo' || entry.source === 'embed'),
       ),
     ).toBeTruthy();
   });

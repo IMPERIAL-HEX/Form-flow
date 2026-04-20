@@ -279,7 +279,11 @@ export const deliveryStages: DeliveryStage[] = [
     status: 'in-progress',
     summary:
       'Submission telemetry API and dashboard route are being implemented to expose source and form activity.',
-    artifacts: ['apps/demo/app/analytics', 'apps/demo/app/api/analytics', 'apps/demo/lib/analytics'],
+    artifacts: [
+      'apps/demo/app/analytics',
+      'apps/demo/app/api/analytics',
+      'apps/demo/lib/analytics',
+    ],
   },
   {
     phase: 'KYC integration',

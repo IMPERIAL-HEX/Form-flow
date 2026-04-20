@@ -244,7 +244,9 @@ export default async function AnalyticsPage({
         </header>
 
         {overview.recentSubmissions.length === 0 ? (
-          <p className="ff-analytics-empty">No submissions yet. Submit a form to populate this table.</p>
+          <p className="ff-analytics-empty">
+            No submissions yet. Submit a form to populate this table.
+          </p>
         ) : (
           <div className="ff-analytics-table-wrap">
             <table className="ff-analytics-table">

@@ -305,12 +305,13 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
 
   const includeZeroCountKnownForms = resolvedFilters.formId === 'all';
 
-  const forms: FormMetric[] = [...knownForms.entries()].map(([formId, title]) => ({
-    formId,
-    title,
-    count: formCounts.get(formId) ?? 0,
-    lastSubmissionAt: formLastSeen.get(formId) ?? null,
-  }))
+  const forms: FormMetric[] = [...knownForms.entries()]
+    .map(([formId, title]) => ({
+      formId,
+      title,
+      count: formCounts.get(formId) ?? 0,
+      lastSubmissionAt: formLastSeen.get(formId) ?? null,
+    }))
     .filter((entry) => includeZeroCountKnownForms || entry.count > 0);
 
   for (const [formId, count] of formCounts.entries()) {
@@ -335,14 +336,18 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
   });
 
   const recentSubmissions = [...submissions].slice(-10).reverse();
-  const maxSourceCount = Math.max(1, ...KNOWN_SOURCES.map((source) => sourceCounts.get(source) ?? 0));
+  const maxSourceCount = Math.max(
+    1,
+    ...KNOWN_SOURCES.map((source) => sourceCounts.get(source) ?? 0),
+  );
   const maxFormCount = Math.max(1, ...forms.map((form) => form.count));
 
   return {
     generatedAt: new Date().toISOString(),
     filters: resolvedFilters,
     totalSubmissions: submissions.length,
-    lastSubmissionAt: submissions.length > 0 ? submissions[submissions.length - 1]?.receivedAt ?? null : null,
+    lastSubmissionAt:
+      submissions.length > 0 ? (submissions[submissions.length - 1]?.receivedAt ?? null) : null,
     maxSourceCount,
     maxFormCount,
     formCatalog,
