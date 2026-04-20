@@ -56,23 +56,18 @@ export function BuilderClient(): React.ReactNode {
   };
 
   const handleAddStep = (): void => {
-    setSchema((prev) => {
-      const next = addStep(prev);
-      const newStep = next.steps[next.steps.length - 1];
-      if (newStep) setSelection({ kind: 'step', stepId: newStep.id });
-      return next;
-    });
+    const next = addStep(schema);
+    const newStep = next.steps[next.steps.length - 1];
+    setSchema(next);
+    if (newStep) setSelection({ kind: 'step', stepId: newStep.id });
   };
 
   const handleRemoveStep = (stepId: string): void => {
-    setSchema((prev) => {
-      const next = removeStep(prev, stepId);
-      if (next !== prev) {
-        const fallback = next.steps[0];
-        if (fallback) setSelection({ kind: 'step', stepId: fallback.id });
-      }
-      return next;
-    });
+    const next = removeStep(schema, stepId);
+    if (next === schema) return;
+    const fallback = next.steps[0];
+    setSchema(next);
+    if (fallback) setSelection({ kind: 'step', stepId: fallback.id });
   };
 
   const handleSelectStep = (stepId: string): void => {
@@ -89,23 +84,18 @@ export function BuilderClient(): React.ReactNode {
 
   const handleAddField = (type: FieldType): void => {
     if (!selectedStepId) return;
-    setSchema((prev) => {
-      const next = addField(prev, selectedStepId, type);
-      const step = next.steps.find((entry) => entry.id === selectedStepId);
-      const newField = step?.fields[step.fields.length - 1];
-      if (newField) setSelection({ kind: 'field', stepId: selectedStepId, fieldKey: newField.key });
-      return next;
-    });
+    const next = addField(schema, selectedStepId, type);
+    const step = next.steps.find((entry) => entry.id === selectedStepId);
+    const newField = step?.fields[step.fields.length - 1];
+    setSchema(next);
+    if (newField) setSelection({ kind: 'field', stepId: selectedStepId, fieldKey: newField.key });
   };
 
   const handleRemoveField = (stepId: string, fieldKey: string): void => {
-    setSchema((prev) => {
-      const next = removeField(prev, stepId, fieldKey);
-      if (next !== prev) {
-        setSelection({ kind: 'step', stepId });
-      }
-      return next;
-    });
+    const next = removeField(schema, stepId, fieldKey);
+    if (next === schema) return;
+    setSchema(next);
+    setSelection({ kind: 'step', stepId });
   };
 
   const handleSelectField = (stepId: string, fieldKey: string): void => {
@@ -122,13 +112,10 @@ export function BuilderClient(): React.ReactNode {
     toStepId: string,
     toIndex: number,
   ): void => {
-    setSchema((prev) => {
-      const next = moveFieldToStep(prev, fieldKey, fromStepId, toStepId, toIndex);
-      if (next !== prev) {
-        setSelection({ kind: 'field', stepId: toStepId, fieldKey });
-      }
-      return next;
-    });
+    const next = moveFieldToStep(schema, fieldKey, fromStepId, toStepId, toIndex);
+    if (next === schema) return;
+    setSchema(next);
+    setSelection({ kind: 'field', stepId: toStepId, fieldKey });
   };
 
   const handleUpdateField = useCallback(
@@ -153,8 +140,16 @@ export function BuilderClient(): React.ReactNode {
 
   const previewSchema = useMemo(() => safeParseSchema(schema), [schema]);
 
+  if (!isReady) {
+    return (
+      <main className="ff-builder-page" data-ready="false">
+        <div className="ff-builder-empty">Loading builder…</div>
+      </main>
+    );
+  }
+
   return (
-    <main className="ff-builder-page" data-ready={isReady ? 'true' : 'false'}>
+    <main className="ff-builder-page" data-ready="true">
       <BuilderToolbar
         title={schema.title}
         onTitleChange={handleTitleChange}

@@ -22,6 +22,9 @@ export function HeroSection(): React.ReactNode {
         <Link href="/playground" className="ff-button ff-button-secondary">
           Open Playground
         </Link>
+        <Link href="/builder" className="ff-button ff-button-secondary">
+          Open Builder
+        </Link>
       </div>
     </section>
   );
