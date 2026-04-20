@@ -10,3 +10,5 @@ coverage
 !.env.example
 .DS_Store
 *_PLAN.md
+next-env.d.ts
+apps/demo/test-results/
