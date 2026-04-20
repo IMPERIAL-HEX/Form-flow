@@ -9,4 +9,6 @@ export const routes = {
   apiFormMissing: '/api/forms/does-not-exist',
   apiSubmissions: '/api/submissions',
   apiAnalyticsOverview: '/api/analytics/overview',
+  apiKycVerify: '/api/kyc/verify',
+  apiKycEvents: '/api/kyc/events',
 } as const;

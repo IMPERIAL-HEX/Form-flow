@@ -22,15 +22,105 @@ test.describe('api routes', () => {
   test('accepts submission payload', async ({ request, baseURL }) => {
     const response = await request.post(`${baseURL}${routes.apiSubmissions}`, {
       data: {
-        sample: true,
-        source: 'e2e',
+        formId: 'education-loan',
+        source: 'demo',
+        payload: {
+          personal: {
+            dateOfBirth: '1995-01-10',
+          },
+          documents: {
+            identityDocument: 'passport.pdf',
+            proofOfAddress: 'utility-bill.pdf',
+          },
+          employment: {
+            status: 'student',
+          },
+        },
       },
     });
 
     expect(response.ok()).toBeTruthy();
-    const json = (await response.json()) as { success: boolean; id: string };
+    const json = (await response.json()) as {
+      success: boolean;
+      id: string;
+      kyc?: { decision: string; checks: Array<{ code: string; status: string }> };
+    };
     expect(json.success).toBeTruthy();
     expect(typeof json.id).toBe('string');
+    expect(json.kyc?.decision).toBe('approved');
+    expect(
+      json.kyc?.checks.some((check) => check.code === 'identity-document' && check.status === 'pass'),
+    ).toBeTruthy();
+  });
+
+  test('runs direct KYC verification for eligible forms', async ({ request, baseURL }) => {
+    const response = await request.post(`${baseURL}${routes.apiKycVerify}`, {
+      data: {
+        formId: 'education-loan',
+        source: 'api',
+        payload: {
+          personal: {
+            dateOfBirth: '2001-03-12',
+          },
+          documents: {
+            identityDocument: 'national-id.png',
+            proofOfAddress: 'bank-statement.pdf',
+            incomeProof: 'payslip.pdf',
+          },
+          employment: {
+            status: 'employed',
+            monthlyIncome: 3000,
+          },
+          financial: {
+            monthlyExpenses: 1800,
+          },
+        },
+      },
+    });
+
+    expect(response.ok()).toBeTruthy();
+    const json = (await response.json()) as {
+      success: boolean;
+      verification: {
+        decision: string;
+        provider: string;
+        checks: Array<{ code: string; status: string }>;
+      };
+    };
+
+    expect(json.success).toBeTruthy();
+    expect(json.verification.provider).toBe('mock-kyc-v1');
+    expect(json.verification.decision).toBe('approved');
+    expect(
+      json.verification.checks.some((check) => check.code === 'income-proof' && check.status === 'pass'),
+    ).toBeTruthy();
+  });
+
+  test('returns recent KYC verification events', async ({ request, baseURL }) => {
+    await request.post(`${baseURL}${routes.apiKycVerify}`, {
+      data: {
+        formId: 'contact-form',
+        source: 'api',
+        payload: {
+          'contact.name': 'Jordan Lee',
+        },
+      },
+    });
+
+    const response = await request.get(`${baseURL}${routes.apiKycEvents}?limit=5`);
+    expect(response.ok()).toBeTruthy();
+
+    const json = (await response.json()) as {
+      events: Array<{ formId: string; decision: string; checks: Array<{ code: string }> }>;
+    };
+
+    expect(json.events.length).toBeGreaterThan(0);
+    expect(json.events.some((event) => event.formId === 'contact-form')).toBeTruthy();
+    expect(
+      json.events.some(
+        (event) => event.decision === 'not-required' && event.checks.some((check) => check.code === 'kyc-applicability'),
+      ),
+    ).toBeTruthy();
   });
 
   test('returns analytics overview with submission counts', async ({ request, baseURL }) => {

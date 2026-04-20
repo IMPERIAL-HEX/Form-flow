@@ -1,4 +1,3 @@
-import { recordSubmission } from '@/lib/analytics/submissionsStore';
 import { verifySubmissionKyc } from '@/lib/kyc/verificationService';
 
 export async function POST(request: Request): Promise<Response> {
@@ -16,15 +15,10 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  console.log('[FormFlow Submission]', JSON.stringify(payload, null, 2));
-
-  const record = recordSubmission(payload);
-  const kyc = verifySubmissionKyc(payload);
+  const verification = verifySubmissionKyc(payload);
 
   return Response.json({
     success: true,
-    id: record.id,
-    receivedAt: record.receivedAt,
-    kyc,
+    verification,
   });
 }
