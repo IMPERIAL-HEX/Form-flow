@@ -4,7 +4,7 @@ import { FormFlowRenderer } from '@formflow/react';
 interface PreviewPanelProps {
   schema: FormSchema | null;
   submissionData: Record<string, unknown> | null;
-  onSubmit: (payload: Record<string, unknown>) => void;
+  onSubmit: (payload: Record<string, unknown>) => Promise<void> | void;
 }
 
 export function PreviewPanel({

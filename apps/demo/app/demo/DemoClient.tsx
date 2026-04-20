@@ -20,7 +20,11 @@ export function DemoClient({ schema }: DemoClientProps): React.ReactNode {
             'Content-Type': 'application/json',
             ...(schema.submission.headers ?? {}),
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            formId: schema.id,
+            source: 'demo',
+            payload,
+          }),
         });
       }}
     />

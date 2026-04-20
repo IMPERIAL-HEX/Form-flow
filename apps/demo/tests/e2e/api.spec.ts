@@ -32,4 +32,53 @@ test.describe('api routes', () => {
     expect(json.success).toBeTruthy();
     expect(typeof json.id).toBe('string');
   });
+
+  test('returns analytics overview with submission counts', async ({ request, baseURL }) => {
+    await request.post(`${baseURL}${routes.apiSubmissions}`, {
+      data: {
+        formId: 'education-loan',
+        source: 'demo',
+        payload: {
+          loanAmount: 5000,
+          firstName: 'Alex',
+        },
+      },
+    });
+
+    await request.post(`${baseURL}${routes.apiSubmissions}`, {
+      data: {
+        formId: 'education-loan',
+        source: 'embed',
+        payload: {
+          loanAmount: 8000,
+        },
+      },
+    });
+
+    const response = await request.get(`${baseURL}${routes.apiAnalyticsOverview}`);
+    expect(response.ok()).toBeTruthy();
+
+    const json = (await response.json()) as {
+      totalSubmissions: number;
+      sources: Array<{ source: string; count: number }>;
+      forms: Array<{ formId: string; count: number }>;
+      recentSubmissions: Array<{ formId: string; source: string }>;
+    };
+
+    expect(json.totalSubmissions).toBeGreaterThanOrEqual(2);
+    expect(
+      json.sources.some((entry) => entry.source === 'demo' && entry.count >= 1),
+    ).toBeTruthy();
+    expect(
+      json.sources.some((entry) => entry.source === 'embed' && entry.count >= 1),
+    ).toBeTruthy();
+    expect(
+      json.forms.some((entry) => entry.formId === 'education-loan' && entry.count >= 2),
+    ).toBeTruthy();
+    expect(
+      json.recentSubmissions.some(
+        (entry) => entry.formId === 'education-loan' && (entry.source === 'demo' || entry.source === 'embed'),
+      ),
+    ).toBeTruthy();
+  });
 });
