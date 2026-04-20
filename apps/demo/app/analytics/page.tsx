@@ -32,6 +32,26 @@ function formatKycDecision(decision: string): string {
   return decision.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function getKycDecisionClass(decision: string): string {
+  if (decision === 'approved') {
+    return 'ff-analytics-kyc-approved';
+  }
+
+  if (decision === 'review') {
+    return 'ff-analytics-kyc-review';
+  }
+
+  if (decision === 'rejected') {
+    return 'ff-analytics-kyc-rejected';
+  }
+
+  if (decision === 'not-required') {
+    return 'ff-analytics-kyc-not-required';
+  }
+
+  return 'ff-analytics-kyc-unknown';
+}
+
 function getSingleSearchParam(value: SearchParamValue): string | undefined {
   if (typeof value === 'string' && value.length > 0) {
     return value;
@@ -331,6 +351,53 @@ export default async function AnalyticsPage({
               </tbody>
             </table>
           </div>
+        )}
+      </section>
+
+      <section className="ff-analytics-panel" aria-label="Recent KYC checks">
+        <header className="ff-analytics-panel-header">
+          <h2>Recent KYC checks</h2>
+          <p>Latest verification events with flagged checks for review workflows.</p>
+        </header>
+
+        {overview.recentKycEvents.length === 0 ? (
+          <p className="ff-analytics-empty">
+            No KYC events for the current filters. Submit a form or widen the filter range.
+          </p>
+        ) : (
+          <ul className="ff-analytics-kyc-event-list">
+            {overview.recentKycEvents.map((event) => (
+              <li key={event.id} className="ff-analytics-kyc-event-item">
+                <div className="ff-analytics-kyc-event-header">
+                  <p>
+                    <strong>{event.formId}</strong> via {formatSource(event.source)}
+                  </p>
+                  <span
+                    className={`ff-analytics-kyc-pill ${getKycDecisionClass(event.decision)}`}
+                  >
+                    {formatKycDecision(event.decision)}
+                  </span>
+                </div>
+
+                <p className="ff-analytics-kyc-event-meta">
+                  {formatTimestamp(event.checkedAt)} • Confidence {event.confidence}%
+                </p>
+
+                {event.flaggedChecks.length === 0 ? (
+                  <p className="ff-analytics-kyc-no-flags">No flagged checks.</p>
+                ) : (
+                  <ul className="ff-analytics-kyc-flag-list">
+                    {event.flaggedChecks.map((check) => (
+                      <li key={`${event.id}-${check.code}`}>
+                        <strong>{check.code}</strong>
+                        {check.reason ? `: ${check.reason}` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </main>

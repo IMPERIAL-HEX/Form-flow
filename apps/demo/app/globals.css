@@ -1690,6 +1690,97 @@ fieldset.ff-builder-field-group {
   letter-spacing: 0.04em;
 }
 
+.ff-analytics-kyc-event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ff-analytics-kyc-event-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.65rem;
+  background: #f9fafb;
+  padding: 0.65rem 0.7rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ff-analytics-kyc-event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ff-analytics-kyc-event-header p {
+  margin: 0;
+  color: #111827;
+  font-size: 0.88rem;
+}
+
+.ff-analytics-kyc-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+}
+
+.ff-analytics-kyc-approved {
+  background: #ecfdf5;
+  border-color: #86efac;
+  color: #065f46;
+}
+
+.ff-analytics-kyc-review {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.ff-analytics-kyc-rejected {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.ff-analytics-kyc-not-required {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.ff-analytics-kyc-unknown {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.ff-analytics-kyc-event-meta {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
+.ff-analytics-kyc-no-flags {
+  margin: 0;
+  color: #065f46;
+  font-size: 0.8rem;
+}
+
+.ff-analytics-kyc-flag-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #7f1d1d;
+  font-size: 0.8rem;
+}
+
 .ff-embed-shell {
   min-height: 100vh;
   background: #f8fafc;

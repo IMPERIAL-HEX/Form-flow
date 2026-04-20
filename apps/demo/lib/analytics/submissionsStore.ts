@@ -1,7 +1,11 @@
 import 'server-only';
 
+import {
+  getKycEvents,
+  type KycDecision,
+  type KycVerificationResult,
+} from '@/lib/kyc/verificationService';
 import { schemaPresets } from '@/lib/schemas/presetSchemas';
-import type { KycDecision } from '@/lib/kyc/verificationService';
 
 const FORM_ID_PATTERN = /^[a-zA-Z0-9-]+$/;
 const KNOWN_SOURCES = ['demo', 'embed', 'playground', 'api', 'unknown'] as const;
@@ -72,7 +76,22 @@ export interface AnalyticsOverview {
   sources: SourceMetric[];
   forms: FormMetric[];
   kycDecisions: KycDecisionMetric[];
+  recentKycEvents: KycEventSummary[];
   recentSubmissions: SubmissionRecord[];
+}
+
+export interface KycEventSummary {
+  id: string;
+  formId: string;
+  source: string;
+  decision: KycDecision;
+  confidence: number;
+  checkedAt: string;
+  flaggedChecks: Array<{
+    code: string;
+    status: 'review' | 'fail';
+    reason?: string;
+  }>;
 }
 
 interface SubmissionStoreState {
@@ -175,7 +194,12 @@ function normalizeKycDecisionFilter(raw: unknown): AnalyticsKycDecisionFilter {
     return 'all';
   }
 
-  if (decision === 'approved' || decision === 'review' || decision === 'rejected' || decision === 'not-required') {
+  if (
+    decision === 'approved' ||
+    decision === 'review' ||
+    decision === 'rejected' ||
+    decision === 'not-required'
+  ) {
     return decision;
   }
 
@@ -256,6 +280,62 @@ function applySubmissionFilters(
   });
 }
 
+function isWithinWindow(timestamp: string, window: AnalyticsWindow): boolean {
+  const cutoff = getWindowCutoff(window);
+  if (cutoff === null) {
+    return true;
+  }
+
+  const value = new Date(timestamp).getTime();
+  return Number.isFinite(value) && value >= cutoff;
+}
+
+function summarizeRecentKycEvents(filters: AnalyticsFilters): KycEventSummary[] {
+  const events = getKycEvents(100);
+
+  return events
+    .filter((event) => {
+      if (filters.formId !== 'all' && event.formId !== filters.formId) {
+        return false;
+      }
+
+      if (filters.source !== 'all' && event.source !== filters.source) {
+        return false;
+      }
+
+      if (filters.kycDecision !== 'all' && event.decision !== filters.kycDecision) {
+        return false;
+      }
+
+      return isWithinWindow(event.checkedAt, filters.window);
+    })
+    .slice(0, 8)
+    .map((event) => mapKycEventSummary(event));
+}
+
+function mapKycEventSummary(event: KycVerificationResult): KycEventSummary {
+  return {
+    id: event.id,
+    formId: event.formId,
+    source: event.source,
+    decision: event.decision,
+    confidence: event.confidence,
+    checkedAt: event.checkedAt,
+    flaggedChecks: event.checks
+      .filter(
+        (
+          check,
+        ): check is KycVerificationResult['checks'][number] & { status: 'review' | 'fail' } =>
+          check.status === 'review' || check.status === 'fail',
+      )
+      .map((check) => ({
+        code: check.code,
+        status: check.status,
+        reason: check.reason,
+      })),
+  };
+}
+
 function unwrapPayload(payload: unknown): {
   formId: string;
   source: SubmissionSource;
@@ -305,7 +385,10 @@ function measurePayloadBytes(data: unknown): number {
   }
 }
 
-export function recordSubmission(payload: unknown, options?: RecordSubmissionOptions): SubmissionRecord {
+export function recordSubmission(
+  payload: unknown,
+  options?: RecordSubmissionOptions,
+): SubmissionRecord {
   const { formId, source, data } = unwrapPayload(payload);
 
   const record: SubmissionRecord = {
@@ -397,6 +480,7 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
   });
 
   const recentSubmissions = [...submissions].slice(-10).reverse();
+  const recentKycEvents = summarizeRecentKycEvents(resolvedFilters);
   const maxSourceCount = Math.max(
     1,
     ...KNOWN_SOURCES.map((source) => sourceCounts.get(source) ?? 0),
@@ -426,6 +510,7 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
       decision,
       count: kycDecisionCounts.get(decision) ?? 0,
     })),
+    recentKycEvents,
     recentSubmissions,
   };
 }
