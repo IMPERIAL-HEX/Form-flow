@@ -185,6 +185,11 @@ export const quickLinks: QuickLinkItem[] = [
     href: '/playground',
   },
   {
+    title: 'Analytics dashboard',
+    description: 'Inspect live submission telemetry and per-form activity snapshots.',
+    href: '/analytics',
+  },
+  {
     title: 'Embed endpoint',
     description: 'Load the iframe-safe renderer surface for partner integrations.',
     href: '/embed/education-loan',
@@ -270,14 +275,26 @@ export const deliveryStages: DeliveryStage[] = [
     artifacts: ['apps/demo/app/page.tsx', 'apps/demo/app/components/home', 'README.md'],
   },
   {
-    phase: 'Final release pass',
+    phase: 'Analytics dashboard',
     status: 'in-progress',
-    summary: 'Quality-gate sweep is passing; PR review and merge to main remain before closure.',
-    artifacts: ['.github/workflows/quality-gates.yml', 'ARCHITECTURE_DECISIONS.md'],
+    summary:
+      'Submission telemetry API and dashboard route are being implemented to expose source and form activity.',
+    artifacts: [
+      'apps/demo/app/analytics',
+      'apps/demo/app/api/analytics',
+      'apps/demo/lib/analytics',
+    ],
+  },
+  {
+    phase: 'KYC integration',
+    status: 'next',
+    summary: 'KYC adapter and verification events are queued immediately after analytics merge.',
+    artifacts: ['apps/demo/app/api', 'packages/core', 'packages/react'],
   },
 ];
 
 export const remainingChecklist: string[] = [
-  'Run and verify one final full quality gate sweep on release HEAD.',
-  'Merge branch to main after reviewer approval.',
+  'Finalize analytics dashboard metrics and route-level test coverage.',
+  'Implement KYC integration as the next delivery slice.',
+  'Add save-and-resume session persistence after KYC.',
 ];

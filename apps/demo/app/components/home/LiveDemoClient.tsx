@@ -27,7 +27,11 @@ export function LiveDemoClient({ schema }: LiveDemoClientProps): React.ReactNode
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(payload),
+              body: JSON.stringify({
+                formId: schema.id,
+                source: 'demo',
+                payload,
+              }),
             });
 
             setIsSubmitting(false);

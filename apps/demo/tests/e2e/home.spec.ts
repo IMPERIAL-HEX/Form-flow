@@ -31,6 +31,10 @@ test.describe('home page docs sections', () => {
       'href',
       '/playground',
     );
+    await expect(page.getByRole('link', { name: /analytics dashboard/i })).toHaveAttribute(
+      'href',
+      '/analytics',
+    );
     await expect(page.getByRole('link', { name: /embed endpoint/i })).toHaveAttribute(
       'href',
       '/embed/education-loan',

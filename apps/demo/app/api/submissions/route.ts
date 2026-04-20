@@ -1,3 +1,5 @@
+import { recordSubmission } from '@/lib/analytics/submissionsStore';
+
 export async function POST(request: Request): Promise<Response> {
   let payload: unknown;
 
@@ -15,9 +17,11 @@ export async function POST(request: Request): Promise<Response> {
 
   console.log('[FormFlow Submission]', JSON.stringify(payload, null, 2));
 
+  const record = recordSubmission(payload);
+
   return Response.json({
     success: true,
-    id: crypto.randomUUID(),
-    receivedAt: new Date().toISOString(),
+    id: record.id,
+    receivedAt: record.receivedAt,
   });
 }

@@ -67,7 +67,21 @@ export function PlaygroundClient(): React.ReactNode {
         <PreviewPanel
           schema={schema}
           submissionData={submissionData}
-          onSubmit={(payload) => setSubmissionData(payload)}
+          onSubmit={async (payload) => {
+            setSubmissionData(payload);
+
+            await fetch('/api/submissions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                formId: schema?.id ?? activePresetId,
+                source: 'playground',
+                payload,
+              }),
+            });
+          }}
         />
       </section>
 
