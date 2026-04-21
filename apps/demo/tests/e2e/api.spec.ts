@@ -22,15 +22,120 @@ test.describe('api routes', () => {
   test('accepts submission payload', async ({ request, baseURL }) => {
     const response = await request.post(`${baseURL}${routes.apiSubmissions}`, {
       data: {
-        sample: true,
-        source: 'e2e',
+        formId: 'education-loan',
+        source: 'demo',
+        payload: {
+          personal: {
+            dateOfBirth: '1995-01-10',
+          },
+          documents: {
+            identityDocument: 'passport.pdf',
+            proofOfAddress: 'utility-bill.pdf',
+          },
+          employment: {
+            status: 'student',
+          },
+        },
       },
     });
 
     expect(response.ok()).toBeTruthy();
-    const json = (await response.json()) as { success: boolean; id: string };
+    const json = (await response.json()) as {
+      success: boolean;
+      id: string;
+      kyc?: {
+        decision: string;
+        provider: string;
+        providerMode: string;
+        checks: Array<{ code: string; status: string }>;
+      };
+    };
     expect(json.success).toBeTruthy();
     expect(typeof json.id).toBe('string');
+    expect(json.kyc?.decision).toBe('approved');
+    expect(json.kyc?.provider).toBe('mock-kyc-v1');
+    expect(json.kyc?.providerMode).toBe('enabled');
+    expect(
+      json.kyc?.checks.some(
+        (check) => check.code === 'identity-document' && check.status === 'pass',
+      ),
+    ).toBeTruthy();
+  });
+
+  test('runs direct KYC verification for eligible forms', async ({ request, baseURL }) => {
+    const response = await request.post(`${baseURL}${routes.apiKycVerify}`, {
+      data: {
+        formId: 'education-loan',
+        source: 'api',
+        payload: {
+          personal: {
+            dateOfBirth: '2001-03-12',
+          },
+          documents: {
+            identityDocument: 'national-id.png',
+            proofOfAddress: 'bank-statement.pdf',
+            incomeProof: 'payslip.pdf',
+          },
+          employment: {
+            status: 'employed',
+            monthlyIncome: 3000,
+          },
+          financial: {
+            monthlyExpenses: 1800,
+          },
+        },
+      },
+    });
+
+    expect(response.ok()).toBeTruthy();
+    const json = (await response.json()) as {
+      success: boolean;
+      verification: {
+        decision: string;
+        provider: string;
+        providerMode: string;
+        checks: Array<{ code: string; status: string }>;
+      };
+    };
+
+    expect(json.success).toBeTruthy();
+    expect(json.verification.provider).toBe('mock-kyc-v1');
+    expect(json.verification.providerMode).toBe('enabled');
+    expect(json.verification.decision).toBe('approved');
+    expect(
+      json.verification.checks.some(
+        (check) => check.code === 'income-proof' && check.status === 'pass',
+      ),
+    ).toBeTruthy();
+  });
+
+  test('returns recent KYC verification events', async ({ request, baseURL }) => {
+    await request.post(`${baseURL}${routes.apiKycVerify}`, {
+      data: {
+        formId: 'contact-form',
+        source: 'api',
+        payload: {
+          'contact.name': 'Jordan Lee',
+        },
+      },
+    });
+
+    const response = await request.get(`${baseURL}${routes.apiKycEvents}?limit=5`);
+    expect(response.ok()).toBeTruthy();
+
+    const json = (await response.json()) as {
+      events: Array<{ formId: string; decision: string; checks: Array<{ code: string }> }>;
+    };
+
+    expect(json.events.length).toBeGreaterThan(0);
+    expect(json.events.some((event) => event.formId === 'contact-form')).toBeTruthy();
+    expect(
+      json.events.some(
+        (event) =>
+          event.decision === 'not-required' &&
+          event.checks.some((check) => check.code === 'kyc-applicability'),
+      ),
+    ).toBeTruthy();
   });
 
   test('returns analytics overview with submission counts', async ({ request, baseURL }) => {
@@ -60,9 +165,33 @@ test.describe('api routes', () => {
 
     const json = (await response.json()) as {
       totalSubmissions: number;
+      kycSummary: {
+        eligibleTotal: number;
+        approvedRate: number;
+        reviewRate: number;
+        rejectedRate: number;
+      };
+      configuredKycProvider: {
+        provider: string;
+        mode: string;
+        eligibleForms: string[];
+      };
       sources: Array<{ source: string; count: number }>;
+      kycDecisions: Array<{ decision: string; count: number }>;
+      kycProviders: Array<{ provider: string; count: number }>;
       forms: Array<{ formId: string; count: number }>;
-      recentSubmissions: Array<{ formId: string; source: string }>;
+      recentKycEvents: Array<{
+        decision: string;
+        provider: string;
+        providerMode: string;
+        flaggedChecks: Array<{ code: string }>;
+      }>;
+      recentSubmissions: Array<{
+        formId: string;
+        source: string;
+        kycDecision: string;
+        kycProvider: string;
+      }>;
     };
 
     expect(json.totalSubmissions).toBeGreaterThanOrEqual(2);
@@ -78,6 +207,27 @@ test.describe('api routes', () => {
           (entry.source === 'demo' || entry.source === 'embed'),
       ),
     ).toBeTruthy();
+    expect(json.kycDecisions.some((entry) => entry.count >= 1)).toBeTruthy();
+    expect(
+      json.kycProviders.some((entry) => entry.provider === 'mock-kyc-v1' && entry.count >= 1),
+    ).toBeTruthy();
+    expect(json.recentKycEvents.length).toBeGreaterThanOrEqual(1);
+    expect(
+      json.recentKycEvents.some(
+        (event) => event.decision === 'review' || event.flaggedChecks.length >= 0,
+      ),
+    ).toBeTruthy();
+    expect(json.recentKycEvents.every((event) => event.providerMode === 'enabled')).toBeTruthy();
+    expect(
+      json.recentSubmissions.every((entry) => entry.kycProvider === 'mock-kyc-v1'),
+    ).toBeTruthy();
+    expect(json.configuredKycProvider.provider).toBe('mock-kyc-v1');
+    expect(json.configuredKycProvider.mode).toBe('enabled');
+    expect(json.configuredKycProvider.eligibleForms).toContain('education-loan');
+    expect(json.kycSummary.eligibleTotal).toBeGreaterThanOrEqual(0);
+    expect(json.kycSummary.approvedRate).toBeGreaterThanOrEqual(0);
+    expect(json.kycSummary.reviewRate).toBeGreaterThanOrEqual(0);
+    expect(json.kycSummary.rejectedRate).toBeGreaterThanOrEqual(0);
   });
 
   test('supports analytics filters through query parameters', async ({ request, baseURL }) => {
@@ -100,13 +250,52 @@ test.describe('api routes', () => {
     expect(sourceFiltered.ok()).toBeTruthy();
 
     const sourceJson = (await sourceFiltered.json()) as {
-      filters: { source: string; window: string };
+      filters: { source: string; window: string; kycProvider: string };
       recentSubmissions: Array<{ source: string }>;
     };
 
     expect(sourceJson.filters.source).toBe('demo');
     expect(sourceJson.filters.window).toBe('24h');
+    expect(sourceJson.filters.kycProvider).toBe('all');
     expect(sourceJson.recentSubmissions.every((entry) => entry.source === 'demo')).toBeTruthy();
+
+    const kycFiltered = await request.get(
+      `${baseURL}${routes.apiAnalyticsOverview}?kycDecision=not-required&window=24h`,
+    );
+    expect(kycFiltered.ok()).toBeTruthy();
+
+    const kycJson = (await kycFiltered.json()) as {
+      filters: { kycDecision: string };
+      recentKycEvents: Array<{ decision: string }>;
+      recentSubmissions: Array<{ kycDecision: string }>;
+    };
+
+    expect(kycJson.filters.kycDecision).toBe('not-required');
+    expect(
+      kycJson.recentSubmissions.every((entry) => entry.kycDecision === 'not-required'),
+    ).toBeTruthy();
+    expect(
+      kycJson.recentKycEvents.every((event) => event.decision === 'not-required'),
+    ).toBeTruthy();
+
+    const providerFiltered = await request.get(
+      `${baseURL}${routes.apiAnalyticsOverview}?kycProvider=mock-kyc-v1&window=24h`,
+    );
+    expect(providerFiltered.ok()).toBeTruthy();
+
+    const providerJson = (await providerFiltered.json()) as {
+      filters: { kycProvider: string };
+      recentKycEvents: Array<{ provider: string }>;
+      recentSubmissions: Array<{ kycProvider: string }>;
+    };
+
+    expect(providerJson.filters.kycProvider).toBe('mock-kyc-v1');
+    expect(
+      providerJson.recentSubmissions.every((entry) => entry.kycProvider === 'mock-kyc-v1'),
+    ).toBeTruthy();
+    expect(
+      providerJson.recentKycEvents.every((event) => event.provider === 'mock-kyc-v1'),
+    ).toBeTruthy();
 
     const formFiltered = await request.get(
       `${baseURL}${routes.apiAnalyticsOverview}?formId=${uniqueFormId}&window=24h`,

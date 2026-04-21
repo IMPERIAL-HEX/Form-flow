@@ -28,6 +28,42 @@ function formatSource(source: string): string {
   return source.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function formatKycDecision(decision: string): string {
+  return decision.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatKycProvider(provider: string): string {
+  if (provider === 'mock-kyc-v1') {
+    return 'Mock KYC v1';
+  }
+
+  if (provider === 'disabled') {
+    return 'Disabled';
+  }
+
+  return provider.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getKycDecisionClass(decision: string): string {
+  if (decision === 'approved') {
+    return 'ff-analytics-kyc-approved';
+  }
+
+  if (decision === 'review') {
+    return 'ff-analytics-kyc-review';
+  }
+
+  if (decision === 'rejected') {
+    return 'ff-analytics-kyc-rejected';
+  }
+
+  if (decision === 'not-required') {
+    return 'ff-analytics-kyc-not-required';
+  }
+
+  return 'ff-analytics-kyc-unknown';
+}
+
 function getSingleSearchParam(value: SearchParamValue): string | undefined {
   if (typeof value === 'string' && value.length > 0) {
     return value;
@@ -44,7 +80,13 @@ function toPercent(value: number, maxValue: number): number {
   return Math.round((value / maxValue) * 100);
 }
 
-function buildAnalyticsHref(filters: { formId: string; source: string; window: string }): string {
+function buildAnalyticsHref(filters: {
+  formId: string;
+  source: string;
+  window: string;
+  kycDecision: string;
+  kycProvider: string;
+}): string {
   const params = new URLSearchParams();
 
   if (filters.formId !== 'all') {
@@ -57,6 +99,14 @@ function buildAnalyticsHref(filters: { formId: string; source: string; window: s
 
   if (filters.window !== 'all') {
     params.set('window', filters.window);
+  }
+
+  if (filters.kycDecision !== 'all') {
+    params.set('kycDecision', filters.kycDecision);
+  }
+
+  if (filters.kycProvider !== 'all') {
+    params.set('kycProvider', filters.kycProvider);
   }
 
   const query = params.toString();
@@ -73,8 +123,14 @@ export default async function AnalyticsPage({
     formId: getSingleSearchParam(resolvedSearchParams?.formId),
     source: getSingleSearchParam(resolvedSearchParams?.source),
     window: getSingleSearchParam(resolvedSearchParams?.window),
+    kycDecision: getSingleSearchParam(resolvedSearchParams?.kycDecision),
+    kycProvider: getSingleSearchParam(resolvedSearchParams?.kycProvider),
   });
   const activeForms = overview.forms.filter((form) => form.count > 0).length;
+  const topObservedProvider = [...overview.kycProviders]
+    .sort((left, right) => right.count - left.count)
+    .find((entry) => entry.count > 0);
+  const activeProvider = topObservedProvider?.provider ?? overview.configuredKycProvider.provider;
 
   return (
     <main className="ff-analytics-page">
@@ -107,6 +163,8 @@ export default async function AnalyticsPage({
                 formId: overview.filters.formId,
                 source: overview.filters.source,
                 window: option.value,
+                kycDecision: overview.filters.kycDecision,
+                kycProvider: overview.filters.kycProvider,
               })}
               className={`ff-analytics-filter-chip ${
                 overview.filters.window === option.value ? 'ff-analytics-filter-chip-active' : ''
@@ -152,6 +210,40 @@ export default async function AnalyticsPage({
             </select>
           </label>
 
+          <label className="ff-analytics-filter-field" htmlFor="analytics-kyc-filter">
+            KYC Decision
+            <select
+              id="analytics-kyc-filter"
+              name="kycDecision"
+              defaultValue={overview.filters.kycDecision}
+              className="ff-analytics-filter-select"
+            >
+              <option value="all">All KYC outcomes</option>
+              {overview.kycDecisions.map((entry) => (
+                <option key={entry.decision} value={entry.decision}>
+                  {formatKycDecision(entry.decision)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="ff-analytics-filter-field" htmlFor="analytics-kyc-provider-filter">
+            KYC Provider
+            <select
+              id="analytics-kyc-provider-filter"
+              name="kycProvider"
+              defaultValue={overview.filters.kycProvider}
+              className="ff-analytics-filter-select"
+            >
+              <option value="all">All providers</option>
+              {overview.kycProviders.map((entry) => (
+                <option key={entry.provider} value={entry.provider}>
+                  {formatKycProvider(entry.provider)}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <input type="hidden" name="window" value={overview.filters.window} />
 
           <button type="submit" className="ff-analytics-filter-submit">
@@ -180,6 +272,26 @@ export default async function AnalyticsPage({
         <article className="ff-analytics-kpi-card">
           <p>Snapshot generated</p>
           <strong>{formatTimestamp(overview.generatedAt)}</strong>
+        </article>
+        <article className="ff-analytics-kpi-card">
+          <p>KYC approved rate</p>
+          <strong>{overview.kycSummary.approvedRate}%</strong>
+          <small>{overview.kycSummary.approvedCount} approved checks</small>
+        </article>
+        <article className="ff-analytics-kpi-card">
+          <p>KYC review rate</p>
+          <strong>{overview.kycSummary.reviewRate}%</strong>
+          <small>{overview.kycSummary.reviewCount} cases in review</small>
+        </article>
+        <article className="ff-analytics-kpi-card">
+          <p>KYC rejection rate</p>
+          <strong>{overview.kycSummary.rejectedRate}%</strong>
+          <small>{overview.kycSummary.rejectedCount} rejected checks</small>
+        </article>
+        <article className="ff-analytics-kpi-card">
+          <p>Primary KYC provider</p>
+          <strong>{formatKycProvider(activeProvider)}</strong>
+          <small>{overview.configuredKycProvider.mode} mode</small>
         </article>
       </section>
 
@@ -235,6 +347,61 @@ export default async function AnalyticsPage({
             ))}
           </div>
         </article>
+
+        <article className="ff-analytics-panel" aria-label="KYC decisions">
+          <header className="ff-analytics-panel-header">
+            <h2>KYC decisions</h2>
+            <p>Distribution of verification outcomes for the active filters.</p>
+          </header>
+          <ul className="ff-analytics-source-list">
+            {overview.kycDecisions.map((metric) => (
+              <li key={metric.decision} className="ff-analytics-source-item">
+                <div className="ff-analytics-source-content">
+                  <div className="ff-analytics-source-row">
+                    <span>{formatKycDecision(metric.decision)}</span>
+                    <strong>{metric.count}</strong>
+                  </div>
+                  <div className="ff-analytics-meter" aria-hidden="true">
+                    <span
+                      className="ff-analytics-meter-fill"
+                      style={{ width: `${toPercent(metric.count, overview.maxKycDecisionCount)}%` }}
+                    />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="ff-analytics-panel" aria-label="KYC providers">
+          <header className="ff-analytics-panel-header">
+            <h2>KYC providers</h2>
+            <p>
+              Configured provider is {formatKycProvider(overview.configuredKycProvider.provider)} in{' '}
+              {overview.configuredKycProvider.mode} mode.
+            </p>
+          </header>
+          <ul className="ff-analytics-source-list">
+            {overview.kycProviders.map((metric) => (
+              <li key={metric.provider} className="ff-analytics-source-item">
+                <div className="ff-analytics-source-content">
+                  <div className="ff-analytics-source-row">
+                    <span>{formatKycProvider(metric.provider)}</span>
+                    <strong>{metric.count}</strong>
+                  </div>
+                  <div className="ff-analytics-meter" aria-hidden="true">
+                    <span
+                      className="ff-analytics-meter-fill"
+                      style={{
+                        width: `${toPercent(metric.count, overview.maxKycProviderCount)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </article>
       </section>
 
       <section className="ff-analytics-panel" aria-label="Recent submissions">
@@ -255,6 +422,8 @@ export default async function AnalyticsPage({
                   <th>Time</th>
                   <th>Form</th>
                   <th>Source</th>
+                  <th>KYC</th>
+                  <th>Provider</th>
                   <th>Fields</th>
                   <th>Bytes</th>
                 </tr>
@@ -265,6 +434,8 @@ export default async function AnalyticsPage({
                     <td>{formatTimestamp(entry.receivedAt)}</td>
                     <td>{entry.formId}</td>
                     <td>{formatSource(entry.source)}</td>
+                    <td>{formatKycDecision(entry.kycDecision)}</td>
+                    <td>{formatKycProvider(entry.kycProvider)}</td>
                     <td>{entry.payloadFieldCount}</td>
                     <td>{entry.payloadBytes}</td>
                   </tr>
@@ -272,6 +443,52 @@ export default async function AnalyticsPage({
               </tbody>
             </table>
           </div>
+        )}
+      </section>
+
+      <section className="ff-analytics-panel" aria-label="Recent KYC checks">
+        <header className="ff-analytics-panel-header">
+          <h2>Recent KYC checks</h2>
+          <p>Latest verification events with flagged checks for review workflows.</p>
+        </header>
+
+        {overview.recentKycEvents.length === 0 ? (
+          <p className="ff-analytics-empty">
+            No KYC events for the current filters. Submit a form or widen the filter range.
+          </p>
+        ) : (
+          <ul className="ff-analytics-kyc-event-list">
+            {overview.recentKycEvents.map((event) => (
+              <li key={event.id} className="ff-analytics-kyc-event-item">
+                <div className="ff-analytics-kyc-event-header">
+                  <p>
+                    <strong>{event.formId}</strong> via {formatSource(event.source)}
+                  </p>
+                  <span className={`ff-analytics-kyc-pill ${getKycDecisionClass(event.decision)}`}>
+                    {formatKycDecision(event.decision)}
+                  </span>
+                </div>
+
+                <p className="ff-analytics-kyc-event-meta">
+                  {formatTimestamp(event.checkedAt)} • Provider {formatKycProvider(event.provider)}{' '}
+                  ({event.providerMode}) • Confidence {event.confidence}%
+                </p>
+
+                {event.flaggedChecks.length === 0 ? (
+                  <p className="ff-analytics-kyc-no-flags">No flagged checks.</p>
+                ) : (
+                  <ul className="ff-analytics-kyc-flag-list">
+                    {event.flaggedChecks.map((check) => (
+                      <li key={`${event.id}-${check.code}`}>
+                        <strong>{check.code}</strong>
+                        {check.reason ? `: ${check.reason}` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </main>

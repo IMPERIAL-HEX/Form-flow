@@ -276,9 +276,9 @@ export const deliveryStages: DeliveryStage[] = [
   },
   {
     phase: 'Analytics dashboard',
-    status: 'in-progress',
+    status: 'complete',
     summary:
-      'Submission telemetry API and dashboard route are being implemented to expose source and form activity.',
+      'Submission telemetry API, dashboard filters, and source/form breakdown views are now live.',
     artifacts: [
       'apps/demo/app/analytics',
       'apps/demo/app/api/analytics',
@@ -287,14 +287,14 @@ export const deliveryStages: DeliveryStage[] = [
   },
   {
     phase: 'KYC integration',
-    status: 'next',
-    summary: 'KYC adapter and verification events are queued immediately after analytics merge.',
+    status: 'in-progress',
+    summary:
+      'Mock KYC provider, verification endpoints, and submission-level KYC decisions are being integrated.',
     artifacts: ['apps/demo/app/api', 'packages/core', 'packages/react'],
   },
 ];
 
 export const remainingChecklist: string[] = [
-  'Finalize analytics dashboard metrics and route-level test coverage.',
-  'Implement KYC integration as the next delivery slice.',
+  'Expand KYC integration with provider configuration and UI visibility in dashboard surfaces.',
   'Add save-and-resume session persistence after KYC.',
 ];
