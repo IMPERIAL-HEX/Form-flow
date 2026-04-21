@@ -1,8 +1,11 @@
 import 'server-only';
 
 import {
+  getKycProviderConfig,
   getKycEvents,
   type KycDecision,
+  type KycProviderId,
+  type KycProviderMode,
   type KycVerificationResult,
 } from '@/lib/kyc/verificationService';
 import { schemaPresets } from '@/lib/schemas/presetSchemas';
@@ -11,11 +14,13 @@ const FORM_ID_PATTERN = /^[a-zA-Z0-9-]+$/;
 const KNOWN_SOURCES = ['demo', 'embed', 'playground', 'api', 'unknown'] as const;
 const ANALYTICS_WINDOWS = ['24h', '7d', '30d', 'all'] as const;
 const KNOWN_KYC_DECISIONS = ['approved', 'review', 'rejected', 'not-required', 'unknown'] as const;
+const KNOWN_KYC_PROVIDERS = ['mock-kyc-v1', 'disabled', 'unknown'] as const;
 
 export type SubmissionSource = (typeof KNOWN_SOURCES)[number];
 export type AnalyticsWindow = (typeof ANALYTICS_WINDOWS)[number];
 export type AnalyticsSourceFilter = SubmissionSource | 'all';
 export type SubmissionKycDecision = (typeof KNOWN_KYC_DECISIONS)[number];
+export type SubmissionKycProvider = (typeof KNOWN_KYC_PROVIDERS)[number];
 export type AnalyticsKycDecisionFilter = KycDecision | 'all';
 
 export interface SubmissionRecord {
@@ -23,6 +28,7 @@ export interface SubmissionRecord {
   formId: string;
   source: SubmissionSource;
   kycDecision: SubmissionKycDecision;
+  kycProvider: SubmissionKycProvider;
   receivedAt: string;
   payloadFieldCount: number;
   payloadBytes: number;
@@ -42,6 +48,11 @@ export interface FormMetric {
 
 export interface KycDecisionMetric {
   decision: SubmissionKycDecision;
+  count: number;
+}
+
+export interface KycProviderMetric {
+  provider: SubmissionKycProvider;
   count: number;
 }
 
@@ -69,14 +80,21 @@ export interface AnalyticsOverview {
   filters: AnalyticsFilters;
   totalSubmissions: number;
   lastSubmissionAt: string | null;
+  configuredKycProvider: {
+    provider: KycProviderId;
+    mode: KycProviderMode;
+    eligibleForms: string[];
+  };
   maxSourceCount: number;
   maxFormCount: number;
   maxKycDecisionCount: number;
+  maxKycProviderCount: number;
   formCatalog: FormCatalogItem[];
   kycSummary: KycSummary;
   sources: SourceMetric[];
   forms: FormMetric[];
   kycDecisions: KycDecisionMetric[];
+  kycProviders: KycProviderMetric[];
   recentKycEvents: KycEventSummary[];
   recentSubmissions: SubmissionRecord[];
 }
@@ -95,6 +113,8 @@ export interface KycEventSummary {
   id: string;
   formId: string;
   source: string;
+  provider: KycProviderId;
+  providerMode: KycProviderMode;
   decision: KycDecision;
   confidence: number;
   checkedAt: string;
@@ -160,6 +180,19 @@ function normalizeKycDecision(raw: unknown): SubmissionKycDecision {
   const decision = raw.trim();
   if (KNOWN_KYC_DECISIONS.includes(decision as SubmissionKycDecision)) {
     return decision as SubmissionKycDecision;
+  }
+
+  return 'unknown';
+}
+
+function normalizeKycProvider(raw: unknown): SubmissionKycProvider {
+  if (typeof raw !== 'string') {
+    return 'unknown';
+  }
+
+  const provider = raw.trim();
+  if (KNOWN_KYC_PROVIDERS.includes(provider as SubmissionKycProvider)) {
+    return provider as SubmissionKycProvider;
   }
 
   return 'unknown';
@@ -329,14 +362,14 @@ function mapKycEventSummary(event: KycVerificationResult): KycEventSummary {
     id: event.id,
     formId: event.formId,
     source: event.source,
+    provider: event.provider,
+    providerMode: event.providerMode,
     decision: event.decision,
     confidence: event.confidence,
     checkedAt: event.checkedAt,
     flaggedChecks: event.checks
       .filter(
-        (
-          check,
-        ): check is KycVerificationResult['checks'][number] & { status: 'review' | 'fail' } =>
+        (check): check is KycVerificationResult['checks'][number] & { status: 'review' | 'fail' } =>
           check.status === 'review' || check.status === 'fail',
       )
       .map((check) => ({
@@ -347,9 +380,7 @@ function mapKycEventSummary(event: KycVerificationResult): KycEventSummary {
   };
 }
 
-function buildKycSummary(
-  kycDecisionCounts: Map<SubmissionKycDecision, number>,
-): KycSummary {
+function buildKycSummary(kycDecisionCounts: Map<SubmissionKycDecision, number>): KycSummary {
   const approvedCount = kycDecisionCounts.get('approved') ?? 0;
   const reviewCount = kycDecisionCounts.get('review') ?? 0;
   const rejectedCount = kycDecisionCounts.get('rejected') ?? 0;
@@ -409,6 +440,7 @@ function unwrapPayload(payload: unknown): {
 
 interface RecordSubmissionOptions {
   kycDecision?: unknown;
+  kycProvider?: unknown;
 }
 
 function countPayloadFields(data: unknown): number {
@@ -438,6 +470,7 @@ export function recordSubmission(
     formId,
     source,
     kycDecision: normalizeKycDecision(options?.kycDecision),
+    kycProvider: normalizeKycProvider(options?.kycProvider),
     receivedAt: new Date().toISOString(),
     payloadFieldCount: countPayloadFields(data),
     payloadBytes: measurePayloadBytes(data),
@@ -462,6 +495,9 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
   const kycDecisionCounts = new Map<SubmissionKycDecision, number>(
     KNOWN_KYC_DECISIONS.map((decision) => [decision, 0]),
   );
+  const kycProviderCounts = new Map<SubmissionKycProvider, number>(
+    KNOWN_KYC_PROVIDERS.map((provider) => [provider, 0]),
+  );
   const formCounts = new Map<string, number>();
   const formLastSeen = new Map<string, string>();
 
@@ -470,6 +506,10 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
     kycDecisionCounts.set(
       submission.kycDecision,
       (kycDecisionCounts.get(submission.kycDecision) ?? 0) + 1,
+    );
+    kycProviderCounts.set(
+      submission.kycProvider,
+      (kycProviderCounts.get(submission.kycProvider) ?? 0) + 1,
     );
     formCounts.set(submission.formId, (formCounts.get(submission.formId) ?? 0) + 1);
     formLastSeen.set(submission.formId, submission.receivedAt);
@@ -532,7 +572,12 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
     1,
     ...KNOWN_KYC_DECISIONS.map((decision) => kycDecisionCounts.get(decision) ?? 0),
   );
+  const maxKycProviderCount = Math.max(
+    1,
+    ...KNOWN_KYC_PROVIDERS.map((provider) => kycProviderCounts.get(provider) ?? 0),
+  );
   const kycSummary = buildKycSummary(kycDecisionCounts);
+  const providerConfig = getKycProviderConfig();
 
   return {
     generatedAt: new Date().toISOString(),
@@ -540,9 +585,15 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
     totalSubmissions: submissions.length,
     lastSubmissionAt:
       submissions.length > 0 ? (submissions[submissions.length - 1]?.receivedAt ?? null) : null,
+    configuredKycProvider: {
+      provider: providerConfig.provider,
+      mode: providerConfig.mode,
+      eligibleForms: providerConfig.eligibleForms,
+    },
     maxSourceCount,
     maxFormCount,
     maxKycDecisionCount,
+    maxKycProviderCount,
     formCatalog,
     kycSummary,
     sources: KNOWN_SOURCES.map((source) => ({
@@ -553,6 +604,10 @@ export function getAnalyticsOverview(filters?: AnalyticsFilterInput): AnalyticsO
     kycDecisions: KNOWN_KYC_DECISIONS.map((decision) => ({
       decision,
       count: kycDecisionCounts.get(decision) ?? 0,
+    })),
+    kycProviders: KNOWN_KYC_PROVIDERS.map((provider) => ({
+      provider,
+      count: kycProviderCounts.get(provider) ?? 0,
     })),
     recentKycEvents,
     recentSubmissions,

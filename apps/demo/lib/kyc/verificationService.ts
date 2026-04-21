@@ -1,11 +1,19 @@
 import 'server-only';
 
 const FORM_ID_PATTERN = /^[a-zA-Z0-9-]+$/;
-const KYC_ELIGIBLE_FORMS = new Set(['education-loan']);
+const DEFAULT_KYC_ELIGIBLE_FORMS = ['education-loan'] as const;
 const INCOME_PROOF_REQUIRED_STATUSES = new Set(['employed', 'self-employed']);
 
 export type KycDecision = 'approved' | 'review' | 'rejected' | 'not-required';
 export type KycCheckStatus = 'pass' | 'review' | 'fail' | 'skip';
+export type KycProviderId = 'mock-kyc-v1' | 'disabled';
+export type KycProviderMode = 'enabled' | 'disabled';
+
+export interface KycProviderConfig {
+  provider: KycProviderId;
+  mode: KycProviderMode;
+  eligibleForms: string[];
+}
 
 export interface KycCheck {
   code: string;
@@ -16,7 +24,8 @@ export interface KycCheck {
 
 export interface KycVerificationResult {
   id: string;
-  provider: 'mock-kyc-v1';
+  provider: KycProviderId;
+  providerMode: KycProviderMode;
   formId: string;
   source: string;
   decision: KycDecision;
@@ -71,6 +80,45 @@ function normalizeSource(raw: unknown): string {
   }
 
   return source;
+}
+
+function resolveEligibleForms(raw: string | undefined): string[] {
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
+    return [...DEFAULT_KYC_ELIGIBLE_FORMS];
+  }
+
+  const parsed = raw
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => FORM_ID_PATTERN.test(entry));
+
+  if (parsed.length === 0) {
+    return [...DEFAULT_KYC_ELIGIBLE_FORMS];
+  }
+
+  return [...new Set(parsed)];
+}
+
+function resolveKycProviderConfig(): KycProviderConfig {
+  const providerValue = process.env.FORMFLOW_KYC_PROVIDER?.trim().toLowerCase();
+
+  if (providerValue === 'disabled' || providerValue === 'off' || providerValue === 'none') {
+    return {
+      provider: 'disabled',
+      mode: 'disabled',
+      eligibleForms: [],
+    };
+  }
+
+  return {
+    provider: 'mock-kyc-v1',
+    mode: 'enabled',
+    eligibleForms: resolveEligibleForms(process.env.FORMFLOW_KYC_ELIGIBLE_FORMS),
+  };
+}
+
+export function getKycProviderConfig(): KycProviderConfig {
+  return resolveKycProviderConfig();
 }
 
 function unwrapPayload(payload: unknown): { formId: string; source: string; data: unknown } {
@@ -197,8 +245,17 @@ function getConfidence(decision: KycDecision): number {
   return 0;
 }
 
-function buildChecks(formId: string, data: unknown): { decision: KycDecision; checks: KycCheck[] } {
-  if (!KYC_ELIGIBLE_FORMS.has(formId)) {
+function buildChecks(
+  formId: string,
+  data: unknown,
+  eligibleForms: Set<string>,
+): { decision: KycDecision; checks: KycCheck[] } {
+  if (!eligibleForms.has(formId)) {
+    const eligibleFormsReason =
+      eligibleForms.size > 0
+        ? `KYC rules are currently enabled for: ${[...eligibleForms].join(', ')}.`
+        : 'No forms are currently configured for KYC checks.';
+
     return {
       decision: 'not-required',
       checks: [
@@ -206,7 +263,7 @@ function buildChecks(formId: string, data: unknown): { decision: KycDecision; ch
           code: 'kyc-applicability',
           label: 'KYC applicability',
           status: 'skip',
-          reason: 'KYC rules are currently enabled for education-loan only.',
+          reason: eligibleFormsReason,
         },
       ],
     };
@@ -333,11 +390,31 @@ function buildChecks(formId: string, data: unknown): { decision: KycDecision; ch
 
 export function verifySubmissionKyc(payload: unknown): KycVerificationResult {
   const { formId, source, data } = unwrapPayload(payload);
-  const { decision, checks } = buildChecks(formId, data);
+  const providerConfig = resolveKycProviderConfig();
+
+  let decision: KycDecision;
+  let checks: KycCheck[];
+
+  if (providerConfig.mode === 'disabled') {
+    decision = 'not-required';
+    checks = [
+      {
+        code: 'kyc-provider',
+        label: 'KYC provider',
+        status: 'skip',
+        reason: 'KYC provider is disabled by FORMFLOW_KYC_PROVIDER.',
+      },
+    ];
+  } else {
+    const resolved = buildChecks(formId, data, new Set(providerConfig.eligibleForms));
+    decision = resolved.decision;
+    checks = resolved.checks;
+  }
 
   const result: KycVerificationResult = {
     id: crypto.randomUUID(),
-    provider: 'mock-kyc-v1',
+    provider: providerConfig.provider,
+    providerMode: providerConfig.mode,
     formId,
     source,
     decision,

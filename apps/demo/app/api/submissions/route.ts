@@ -21,6 +21,7 @@ export async function POST(request: Request): Promise<Response> {
   const kyc = verifySubmissionKyc(payload);
   const record = recordSubmission(payload, {
     kycDecision: kyc.decision,
+    kycProvider: kyc.provider,
   });
 
   return Response.json({

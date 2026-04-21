@@ -10,11 +10,13 @@ test.describe('analytics dashboard', () => {
     await expect(page.getByRole('heading', { name: /submissions by source/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /submissions by form/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /kyc decisions/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /kyc providers/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /recent submissions/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /recent kyc checks/i })).toBeVisible();
     await expect(page.getByText(/kyc approved rate/i)).toBeVisible();
     await expect(page.getByText(/kyc review rate/i)).toBeVisible();
     await expect(page.getByText(/kyc rejection rate/i)).toBeVisible();
+    await expect(page.getByText(/primary kyc provider/i)).toBeVisible();
 
     await expect(page.getByRole('link', { name: /open demo flow/i })).toHaveAttribute(
       'href',
