@@ -29,11 +29,14 @@ test.describe('analytics dashboard', () => {
   });
 
   test('exposes filter controls and applies query defaults', async ({ page }) => {
-    await page.goto(`${routes.analytics}?source=embed&window=7d&kycDecision=approved`);
+    await page.goto(
+      `${routes.analytics}?source=embed&window=7d&kycDecision=approved&kycProvider=mock-kyc-v1`,
+    );
 
     await expect(page.locator('#analytics-source-filter')).toHaveValue('embed');
     await expect(page.locator('#analytics-form-filter')).toHaveValue('all');
     await expect(page.locator('#analytics-kyc-filter')).toHaveValue('approved');
+    await expect(page.locator('#analytics-kyc-provider-filter')).toHaveValue('mock-kyc-v1');
     await expect(page.getByRole('link', { name: /last 7 days/i })).toHaveClass(
       /ff-analytics-filter-chip-active/,
     );

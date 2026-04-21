@@ -1,8 +1,8 @@
 import 'server-only';
 
 import {
-  getKycProviderConfig,
   getKycEvents,
+  getKycProviderConfig,
   type KycDecision,
   type KycProviderId,
   type KycProviderMode,
@@ -22,6 +22,7 @@ export type AnalyticsSourceFilter = SubmissionSource | 'all';
 export type SubmissionKycDecision = (typeof KNOWN_KYC_DECISIONS)[number];
 export type SubmissionKycProvider = (typeof KNOWN_KYC_PROVIDERS)[number];
 export type AnalyticsKycDecisionFilter = KycDecision | 'all';
+export type AnalyticsKycProviderFilter = SubmissionKycProvider | 'all';
 
 export interface SubmissionRecord {
   id: string;
@@ -61,6 +62,7 @@ export interface AnalyticsFilters {
   source: AnalyticsSourceFilter;
   window: AnalyticsWindow;
   kycDecision: AnalyticsKycDecisionFilter;
+  kycProvider: AnalyticsKycProviderFilter;
 }
 
 interface AnalyticsFilterInput {
@@ -68,6 +70,7 @@ interface AnalyticsFilterInput {
   source?: unknown;
   window?: unknown;
   kycDecision?: unknown;
+  kycProvider?: unknown;
 }
 
 export interface FormCatalogItem {
@@ -250,6 +253,23 @@ function normalizeKycDecisionFilter(raw: unknown): AnalyticsKycDecisionFilter {
   return 'all';
 }
 
+function normalizeKycProviderFilter(raw: unknown): AnalyticsKycProviderFilter {
+  if (typeof raw !== 'string') {
+    return 'all';
+  }
+
+  const provider = raw.trim();
+  if (provider === 'all') {
+    return 'all';
+  }
+
+  if (KNOWN_KYC_PROVIDERS.includes(provider as SubmissionKycProvider)) {
+    return provider as SubmissionKycProvider;
+  }
+
+  return 'all';
+}
+
 function normalizeFormFilter(raw: unknown): string {
   if (typeof raw !== 'string') {
     return 'all';
@@ -273,6 +293,7 @@ function resolveFilters(filters?: AnalyticsFilterInput): AnalyticsFilters {
     source: normalizeSourceFilter(filters?.source),
     window: normalizeWindow(filters?.window),
     kycDecision: normalizeKycDecisionFilter(filters?.kycDecision),
+    kycProvider: normalizeKycProviderFilter(filters?.kycProvider),
   };
 }
 
@@ -313,6 +334,10 @@ function applySubmissionFilters(
       return false;
     }
 
+    if (filters.kycProvider !== 'all' && submission.kycProvider !== filters.kycProvider) {
+      return false;
+    }
+
     if (cutoff !== null) {
       const receivedAt = new Date(submission.receivedAt).getTime();
       if (!Number.isFinite(receivedAt) || receivedAt < cutoff) {
@@ -348,6 +373,10 @@ function summarizeRecentKycEvents(filters: AnalyticsFilters): KycEventSummary[] 
       }
 
       if (filters.kycDecision !== 'all' && event.decision !== filters.kycDecision) {
+        return false;
+      }
+
+      if (filters.kycProvider !== 'all' && event.provider !== filters.kycProvider) {
         return false;
       }
 

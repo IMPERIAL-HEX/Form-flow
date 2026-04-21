@@ -218,7 +218,9 @@ test.describe('api routes', () => {
       ),
     ).toBeTruthy();
     expect(json.recentKycEvents.every((event) => event.providerMode === 'enabled')).toBeTruthy();
-    expect(json.recentSubmissions.every((entry) => entry.kycProvider === 'mock-kyc-v1')).toBeTruthy();
+    expect(
+      json.recentSubmissions.every((entry) => entry.kycProvider === 'mock-kyc-v1'),
+    ).toBeTruthy();
     expect(json.configuredKycProvider.provider).toBe('mock-kyc-v1');
     expect(json.configuredKycProvider.mode).toBe('enabled');
     expect(json.configuredKycProvider.eligibleForms).toContain('education-loan');
@@ -248,12 +250,13 @@ test.describe('api routes', () => {
     expect(sourceFiltered.ok()).toBeTruthy();
 
     const sourceJson = (await sourceFiltered.json()) as {
-      filters: { source: string; window: string };
+      filters: { source: string; window: string; kycProvider: string };
       recentSubmissions: Array<{ source: string }>;
     };
 
     expect(sourceJson.filters.source).toBe('demo');
     expect(sourceJson.filters.window).toBe('24h');
+    expect(sourceJson.filters.kycProvider).toBe('all');
     expect(sourceJson.recentSubmissions.every((entry) => entry.source === 'demo')).toBeTruthy();
 
     const kycFiltered = await request.get(
@@ -273,6 +276,25 @@ test.describe('api routes', () => {
     ).toBeTruthy();
     expect(
       kycJson.recentKycEvents.every((event) => event.decision === 'not-required'),
+    ).toBeTruthy();
+
+    const providerFiltered = await request.get(
+      `${baseURL}${routes.apiAnalyticsOverview}?kycProvider=mock-kyc-v1&window=24h`,
+    );
+    expect(providerFiltered.ok()).toBeTruthy();
+
+    const providerJson = (await providerFiltered.json()) as {
+      filters: { kycProvider: string };
+      recentKycEvents: Array<{ provider: string }>;
+      recentSubmissions: Array<{ kycProvider: string }>;
+    };
+
+    expect(providerJson.filters.kycProvider).toBe('mock-kyc-v1');
+    expect(
+      providerJson.recentSubmissions.every((entry) => entry.kycProvider === 'mock-kyc-v1'),
+    ).toBeTruthy();
+    expect(
+      providerJson.recentKycEvents.every((event) => event.provider === 'mock-kyc-v1'),
     ).toBeTruthy();
 
     const formFiltered = await request.get(

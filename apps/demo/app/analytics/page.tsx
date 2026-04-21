@@ -85,6 +85,7 @@ function buildAnalyticsHref(filters: {
   source: string;
   window: string;
   kycDecision: string;
+  kycProvider: string;
 }): string {
   const params = new URLSearchParams();
 
@@ -104,6 +105,10 @@ function buildAnalyticsHref(filters: {
     params.set('kycDecision', filters.kycDecision);
   }
 
+  if (filters.kycProvider !== 'all') {
+    params.set('kycProvider', filters.kycProvider);
+  }
+
   const query = params.toString();
   return query.length > 0 ? `/analytics?${query}` : '/analytics';
 }
@@ -119,6 +124,7 @@ export default async function AnalyticsPage({
     source: getSingleSearchParam(resolvedSearchParams?.source),
     window: getSingleSearchParam(resolvedSearchParams?.window),
     kycDecision: getSingleSearchParam(resolvedSearchParams?.kycDecision),
+    kycProvider: getSingleSearchParam(resolvedSearchParams?.kycProvider),
   });
   const activeForms = overview.forms.filter((form) => form.count > 0).length;
   const topObservedProvider = [...overview.kycProviders]
@@ -158,6 +164,7 @@ export default async function AnalyticsPage({
                 source: overview.filters.source,
                 window: option.value,
                 kycDecision: overview.filters.kycDecision,
+                kycProvider: overview.filters.kycProvider,
               })}
               className={`ff-analytics-filter-chip ${
                 overview.filters.window === option.value ? 'ff-analytics-filter-chip-active' : ''
@@ -215,6 +222,23 @@ export default async function AnalyticsPage({
               {overview.kycDecisions.map((entry) => (
                 <option key={entry.decision} value={entry.decision}>
                   {formatKycDecision(entry.decision)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="ff-analytics-filter-field" htmlFor="analytics-kyc-provider-filter">
+            KYC Provider
+            <select
+              id="analytics-kyc-provider-filter"
+              name="kycProvider"
+              defaultValue={overview.filters.kycProvider}
+              className="ff-analytics-filter-select"
+            >
+              <option value="all">All providers</option>
+              {overview.kycProviders.map((entry) => (
+                <option key={entry.provider} value={entry.provider}>
+                  {formatKycProvider(entry.provider)}
                 </option>
               ))}
             </select>
@@ -446,8 +470,8 @@ export default async function AnalyticsPage({
                 </div>
 
                 <p className="ff-analytics-kyc-event-meta">
-                  {formatTimestamp(event.checkedAt)} • Provider {formatKycProvider(event.provider)} (
-                  {event.providerMode}) • Confidence {event.confidence}%
+                  {formatTimestamp(event.checkedAt)} • Provider {formatKycProvider(event.provider)}{' '}
+                  ({event.providerMode}) • Confidence {event.confidence}%
                 </p>
 
                 {event.flaggedChecks.length === 0 ? (
