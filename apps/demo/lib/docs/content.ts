@@ -275,6 +275,27 @@ export const deliveryStages: DeliveryStage[] = [
     artifacts: ['apps/demo/app/page.tsx', 'apps/demo/app/components/home', 'README.md'],
   },
   {
+    phase: 'Conditional logic builder',
+    status: 'complete',
+    summary:
+      'Playground-embedded editor compiles condition rows into showIf rules and applies them to the active schema.',
+    artifacts: [
+      'apps/demo/app/playground/components/ConditionBuilder.tsx',
+      'apps/demo/app/playground/components/ConditionRow.tsx',
+      'apps/demo/lib/schemas/conditionBuilderUtils.ts',
+    ],
+  },
+  {
+    phase: 'Visual builder',
+    status: 'complete',
+    summary:
+      'Drag-and-drop builder route with sortable steps and fields, property editors for all 13 field types, and a live renderer preview.',
+    artifacts: [
+      'apps/demo/app/builder',
+      'apps/demo/lib/builder',
+    ],
+  },
+  {
     phase: 'Analytics dashboard',
     status: 'complete',
     summary:
@@ -287,14 +308,17 @@ export const deliveryStages: DeliveryStage[] = [
   },
   {
     phase: 'KYC integration',
-    status: 'in-progress',
+    status: 'complete',
     summary:
-      'Mock KYC provider, verification endpoints, and submission-level KYC decisions are being integrated.',
-    artifacts: ['apps/demo/app/api', 'packages/core', 'packages/react'],
+      'Mock KYC provider with configurable modes, verification endpoints, submission-level decisions, and KYC-provider breakdowns in analytics are live.',
+    artifacts: [
+      'apps/demo/app/api/kyc',
+      'apps/demo/lib/kyc',
+      'apps/demo/lib/analytics/submissionsStore.ts',
+    ],
   },
 ];
 
 export const remainingChecklist: string[] = [
-  'Expand KYC integration with provider configuration and UI visibility in dashboard surfaces.',
-  'Add save-and-resume session persistence after KYC.',
+  'Add save-and-resume session persistence so applicants can pause and return to a flow.',
 ];
