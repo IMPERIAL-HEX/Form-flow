@@ -11,4 +11,5 @@ export const routes = {
   apiAnalyticsOverview: '/api/analytics/overview',
   apiKycVerify: '/api/kyc/verify',
   apiKycEvents: '/api/kyc/events',
+  apiSessions: '/api/sessions',
 } as const;

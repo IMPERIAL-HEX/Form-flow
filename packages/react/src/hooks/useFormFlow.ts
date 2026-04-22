@@ -1,9 +1,10 @@
-import { useCallback, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 import {
   createFormFlowEngine,
   parseFormSchema,
   type FormFlowEngine,
+  type FormFlowState,
   type FormSchema,
   type StepSchema,
 } from '@formflow/core';
@@ -11,8 +12,10 @@ import {
 export interface UseFormFlowOptions {
   schema: FormSchema;
   initialValues?: Record<string, unknown>;
+  initialStepId?: string;
   onSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
   onStepChange?: (stepId: string, direction: 'forward' | 'back') => void;
+  onStateChange?: (state: FormFlowState) => void;
 }
 
 export interface UseFormFlowReturn {
@@ -35,7 +38,7 @@ export interface UseFormFlowReturn {
 }
 
 export function useFormFlow(options: UseFormFlowOptions): UseFormFlowReturn {
-  const engine = useEngine(options.schema, options.initialValues);
+  const engine = useEngine(options.schema, options.initialValues, options.initialStepId);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const state = useSyncExternalStore(
@@ -43,6 +46,15 @@ export function useFormFlow(options: UseFormFlowOptions): UseFormFlowReturn {
     useCallback(() => engine.getState(), [engine]),
     useCallback(() => engine.getState(), [engine]),
   );
+
+  const onStateChangeRef = useRef(options.onStateChange);
+  useEffect(() => {
+    onStateChangeRef.current = options.onStateChange;
+  }, [options.onStateChange]);
+
+  useEffect(() => {
+    onStateChangeRef.current?.(state);
+  }, [state]);
 
   const setValue = useCallback(
     (key: string, value: unknown) => {
@@ -119,13 +131,21 @@ export function useFormFlow(options: UseFormFlowOptions): UseFormFlowReturn {
   };
 }
 
-function useEngine(schema: FormSchema, initialValues?: Record<string, unknown>): FormFlowEngine {
+function useEngine(
+  schema: FormSchema,
+  initialValues?: Record<string, unknown>,
+  initialStepId?: string,
+): FormFlowEngine {
   const engineRef = useRef<FormFlowEngine | null>(null);
   const schemaRef = useRef<FormSchema | null>(null);
 
   if (!engineRef.current || schemaRef.current !== schema) {
     const parsedSchema = parseFormSchema(schema);
-    engineRef.current = createFormFlowEngine(parsedSchema, initialValues);
+    const engine = createFormFlowEngine(parsedSchema, initialValues);
+    if (initialStepId) {
+      engine.goToStep(initialStepId);
+    }
+    engineRef.current = engine;
     schemaRef.current = schema;
   }
 
