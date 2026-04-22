@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion';
 
-import type { FormSchema } from '@formflow/core';
+import type { FormFlowState, FormSchema } from '@formflow/core';
 
 import { useFormFlow } from '../../hooks/useFormFlow';
 import type { FieldComponentMap } from '../../registry/registry';
@@ -11,8 +11,10 @@ import { StepRenderer } from './StepRenderer';
 export interface FormFlowRendererProps {
   schema: FormSchema;
   initialValues?: Record<string, unknown>;
+  initialStepId?: string;
   onSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
   onStepChange?: (stepId: string, direction: 'forward' | 'back') => void;
+  onStateChange?: (state: FormFlowState) => void;
   customComponents?: Partial<FieldComponentMap>;
   className?: string;
 }
@@ -21,8 +23,10 @@ export function FormFlowRenderer(props: FormFlowRendererProps): React.ReactNode 
   const flow = useFormFlow({
     schema: props.schema,
     initialValues: props.initialValues,
+    initialStepId: props.initialStepId,
     onSubmit: props.onSubmit,
     onStepChange: props.onStepChange,
+    onStateChange: props.onStateChange,
   });
 
   return (

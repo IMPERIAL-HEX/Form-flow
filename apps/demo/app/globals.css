@@ -579,6 +579,71 @@ a {
   font-size: 0.79rem;
 }
 
+.ff-demo-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ff-demo-resume-bar {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.ff-demo-resume-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.ff-demo-resume-error {
+  color: #b91c1c;
+}
+
+.ff-demo-resume-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ff-demo-resume-button {
+  border: 1px solid #cbd5f5;
+  border-radius: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.ff-demo-resume-button:hover {
+  border-color: #0ea5a0;
+  color: #0f766e;
+}
+
+.ff-demo-resume-button-primary {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #0f766e;
+}
+
+.ff-demo-resume-button-primary:hover {
+  background: #0d5f59;
+  border-color: #0d5f59;
+  color: #ffffff;
+}
+
 .ff-builder-page {
   min-height: 100vh;
   padding: 1rem;
