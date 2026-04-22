@@ -181,15 +181,19 @@ It is intentionally built as a portfolio-quality architecture that can evolve in
 
 ## Project Status
 
-Current branch focus: final landing and release polish.
+The roadmap scope is complete. The project runs end-to-end as a local demo.
 
 1. Complete: headless core engine and tests
 2. Complete: React SDK renderer, fields, layouts, and hooks
 3. Complete: demo flow, embed mode, playground, and API routes
-4. Complete: final landing/docs polish and release narrative tightening
-5. In progress: final review and merge-to-main step
+4. Complete: landing, docs, and release polish
+5. Complete: conditional-logic builder
+6. Complete: drag-and-drop visual builder
+7. Complete: analytics dashboard with submission telemetry
+8. Complete: mock KYC provider and verification flow
+9. Complete: save-and-resume drafts via tokenised session links
 
-Remaining before done:
+Explicitly deferred:
 
-1. Run one final quality-gate sweep on the release branch HEAD
-2. Merge to main after review
+1. Persistent database — submissions, KYC events, and session drafts all live in in-memory stores and reset on server restart
+2. npm package publishing — `@formflow/core` and `@formflow/react` are workspace-only today

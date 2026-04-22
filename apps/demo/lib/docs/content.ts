@@ -317,8 +317,21 @@ export const deliveryStages: DeliveryStage[] = [
       'apps/demo/lib/analytics/submissionsStore.ts',
     ],
   },
+  {
+    phase: 'Save and resume',
+    status: 'complete',
+    summary:
+      'Session-backed drafts with tokenised resume links let applicants pause a flow and restore progress on the same or another device.',
+    artifacts: [
+      'apps/demo/app/api/sessions',
+      'apps/demo/lib/sessions/sessionStore.ts',
+      'apps/demo/app/demo/DemoClient.tsx',
+    ],
+  },
 ];
 
 export const remainingChecklist: string[] = [
-  'Add save-and-resume session persistence so applicants can pause and return to a flow.',
+  'Roadmap scope is shipped — the project runs end-to-end as a local demo.',
+  'Deferred for production hardening: swap the in-memory submission, KYC event, and session stores for a persistent database.',
+  'Deferred for distribution: publish @formflow/core and @formflow/react to npm so external apps can consume the SDK directly.',
 ];
