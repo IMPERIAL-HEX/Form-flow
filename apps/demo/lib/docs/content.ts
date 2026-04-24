@@ -39,10 +39,10 @@ export const howItWorksItems: HowItWorksItem[] = [
     description:
       'Describe your flow, fields, validation, and conditional steps as JSON. No component code needed for each form.',
     code: `{
-  "id": "education-loan",
-  "layout": { "template": "sidebar-left" },
+  "id": "customer-intake",
+  "layout": { "template": "top-stepper" },
   "steps": [
-    { "id": "loan-amount", "fields": [/* ... */] }
+    { "id": "basics", "fields": [/* ... */] }
   ]
 }`,
   },
@@ -65,8 +65,8 @@ export const howItWorksItems: HowItWorksItem[] = [
     description:
       'Payload shape follows schema keys and can be transformed into nested objects before forwarding to your backend.',
     code: `{
-  "loan": { "amount": 8000, "purpose": "medical" },
-  "personal": { "firstName": "Sam", "lastName": "Green" }
+  "contact": { "firstName": "Sam", "email": "sam@example.com" },
+  "details": { "topic": "support", "urgency": "normal" }
 }`,
   },
 ];
@@ -114,7 +114,7 @@ export const schemaFieldReference: SchemaFieldReference[] = [
     summary: 'Single-line text input with min/max length and regex support.',
     example: `{
   "type": "text",
-  "key": "personal.firstName",
+  "key": "contact.firstName",
   "label": "First name",
   "required": true,
   "minLength": 2
@@ -125,11 +125,11 @@ export const schemaFieldReference: SchemaFieldReference[] = [
     summary: 'Numeric currency input with min/max constraints and quick-select options.',
     example: `{
   "type": "currency",
-  "key": "loan.amount",
-  "currency": "GBP",
-  "min": 1000,
-  "max": 10000,
-  "quickSelect": [2000, 5000, 8000]
+  "key": "order.amount",
+  "currency": "USD",
+  "min": 10,
+  "max": 5000,
+  "quickSelect": [25, 50, 100]
 }`,
   },
   {
@@ -137,11 +137,11 @@ export const schemaFieldReference: SchemaFieldReference[] = [
     summary: 'Single-select options rendered as dropdowns, radio groups, or icon cards.',
     example: `{
   "type": "select",
-  "key": "employment.status",
+  "key": "request.topic",
   "ui": { "variant": "radio-group" },
   "options": [
-    { "value": "employed", "label": "Employed" },
-    { "value": "student", "label": "Student" }
+    { "value": "support", "label": "Support" },
+    { "value": "sales", "label": "Sales" }
   ]
 }`,
   },
@@ -150,7 +150,7 @@ export const schemaFieldReference: SchemaFieldReference[] = [
     summary: 'File metadata capture with accepted file types and max size validation.',
     example: `{
   "type": "file",
-  "key": "documents.identityDocument",
+  "key": "attachments.primary",
   "accept": [".pdf", ".jpg", ".png"],
   "maxSizeMb": 10
 }`,
@@ -160,9 +160,9 @@ export const schemaFieldReference: SchemaFieldReference[] = [
     summary: 'Conditional visibility for steps and fields with logical operators.',
     example: `{
   "showIf": {
-    "field": "employment.status",
+    "field": "request.topic",
     "operator": "in",
-    "value": ["employed", "self-employed"]
+    "value": ["support", "sales"]
   }
 }`,
   },

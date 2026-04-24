@@ -43,6 +43,60 @@ a {
   top: 0.75rem;
 }
 
+.ff-topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.7rem 1.25rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.ff-topnav-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0f766e;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.ff-topnav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.ff-topnav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #475569;
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.ff-topnav-link:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.ff-topnav-link-active {
+  background: #ecfdf5;
+  color: #0f766e;
+  font-weight: 600;
+}
+
 .ff-eyebrow {
   margin: 0;
   font-size: 0.75rem;
@@ -222,6 +276,55 @@ a {
   color: #e2e8f0;
   font-size: 0.78rem;
   line-height: 1.42;
+}
+
+.ff-live-demo-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ff-live-demo-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+
+.ff-live-demo-pill {
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.ff-live-demo-pill:hover {
+  border-color: #0ea5a0;
+}
+
+.ff-live-demo-pill-active {
+  border-color: #0f766e;
+  background: #ecfdf5;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.2);
+}
+
+.ff-live-demo-pill-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.ff-live-demo-pill-description {
+  font-size: 0.78rem;
+  color: #475569;
 }
 
 .ff-live-demo-grid {
@@ -726,6 +829,181 @@ a {
 .ff-builder-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.ff-builder-button-danger {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.ff-builder-button-danger:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #991b1b;
+}
+
+.ff-builder-back {
+  align-self: flex-start;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #0f766e;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.ff-builder-back:hover {
+  background: #ecfdf5;
+}
+
+.ff-builder-id {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.ff-builder-id code {
+  background: #e2e8f0;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.25rem;
+  color: #0f172a;
+}
+
+.ff-builder-status {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.ff-builder-status-dirty {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.ff-builder-status-saving {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: #7dd3fc;
+}
+
+.ff-builder-status-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.ff-builder-list {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ff-builder-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ff-builder-list-header h1 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.6rem;
+  color: #0f172a;
+}
+
+.ff-builder-list-subtitle {
+  margin: 0;
+  color: #475569;
+  font-size: 0.88rem;
+}
+
+.ff-builder-list-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.55rem;
+  font-size: 0.9rem;
+}
+
+.ff-builder-list-empty {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 0.9rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ff-builder-list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ff-builder-list-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.ff-builder-list-main {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.ff-builder-list-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.ff-builder-list-title:hover {
+  color: #0f766e;
+  text-decoration: underline;
+}
+
+.ff-builder-list-meta {
+  margin: 0.25rem 0 0 0;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.ff-builder-list-meta code {
+  background: #e2e8f0;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.25rem;
+  color: #0f172a;
+}
+
+.ff-builder-list-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .ff-cb-panel {
@@ -1303,12 +1581,35 @@ fieldset.ff-builder-field-group {
 
 .ff-builder-preview-shell {
   background: #f8fafc;
-  width: min(560px, 100vw);
-  max-width: 100%;
+  width: 720px;
+  max-width: 100vw;
+  min-width: 360px;
   height: 100%;
   display: flex;
   flex-direction: column;
   box-shadow: -8px 0 20px rgba(15, 23, 42, 0.18);
+  position: relative;
+}
+
+.ff-builder-preview-shell-dragging {
+  user-select: none;
+}
+
+.ff-builder-preview-resizer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 120ms ease;
+  z-index: 1;
+}
+
+.ff-builder-preview-resizer:hover,
+.ff-builder-preview-shell-dragging .ff-builder-preview-resizer {
+  background: rgba(13, 148, 136, 0.45);
 }
 
 .ff-builder-preview-header {

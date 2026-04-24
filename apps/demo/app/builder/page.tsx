@@ -1,10 +1,15 @@
-import { BuilderClient } from './BuilderClient';
+import { listSchemas } from '@/lib/builder/schemaStore';
+
+import { BuilderListClient } from './BuilderListClient';
 
 export const metadata = {
   title: 'FormFlow — Visual Builder',
-  description: 'Drag-and-drop builder that emits FormFlow schema JSON.',
+  description: 'Save, open, and manage form schemas.',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function BuilderPage(): React.ReactNode {
-  return <BuilderClient />;
+  const summaries = listSchemas();
+  return <BuilderListClient initialSummaries={summaries} />;
 }

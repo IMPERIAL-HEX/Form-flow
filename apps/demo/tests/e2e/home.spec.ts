@@ -11,7 +11,7 @@ test.describe('home page docs sections', () => {
     ).toBeVisible();
     await expect(page.getByRole('heading', { name: /define, render, and submit/i })).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: /interact with a production-like/i }),
+      page.getByRole('heading', { name: /try it with any example flow/i }),
     ).toBeVisible();
     await expect(
       page.getByRole('heading', {

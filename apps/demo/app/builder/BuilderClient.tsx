@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { FormSchema } from '@formflow/core';
 import { parseFormSchema } from '@formflow/core';
@@ -8,7 +9,6 @@ import { parseFormSchema } from '@formflow/core';
 import {
   addField,
   addStep,
-  createBlankSchema,
   moveField,
   moveFieldToStep,
   moveStep,
@@ -22,22 +22,38 @@ import type { BuilderSelection } from '@/lib/builder/types';
 import type { FieldType } from '@/lib/builder/fieldTypeMeta';
 import type { FieldSchema } from '@formflow/core';
 
-import { BuilderToolbar } from './components/BuilderToolbar';
+import { BuilderToolbar, type SaveStatus } from './components/BuilderToolbar';
 import { FieldList } from './components/FieldList';
 import { FieldPalette } from './components/FieldPalette';
 import { PreviewDrawer } from './components/PreviewDrawer';
 import { PropertiesPanel } from './components/properties/PropertiesPanel';
 import { StepList } from './components/StepList';
 
-export function BuilderClient(): React.ReactNode {
-  const [schema, setSchema] = useState<FormSchema>(() => createBlankSchema());
-  const [selection, setSelection] = useState<BuilderSelection>({ kind: 'step', stepId: '' });
+interface BuilderClientProps {
+  initialSchema: FormSchema;
+  schemaId: string;
+}
+
+export function BuilderClient({ initialSchema, schemaId }: BuilderClientProps): React.ReactNode {
+  const router = useRouter();
+  const [schema, setSchema] = useState<FormSchema>(initialSchema);
+  const [selection, setSelection] = useState<BuilderSelection>({
+    kind: 'step',
+    stepId: initialSchema.steps[0]?.id ?? '',
+  });
   const [isReady, setIsReady] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('clean');
+  const [dirty, setDirty] = useState(false);
+  const lastSavedRef = useRef<string>(JSON.stringify(initialSchema));
 
   useEffect(() => {
     setIsReady(true);
   }, []);
+
+  useEffect(() => {
+    setDirty(JSON.stringify(schema) !== lastSavedRef.current);
+  }, [schema]);
 
   useEffect(() => {
     if (selection.kind === 'step' && !selection.stepId && schema.steps[0]) {
@@ -138,6 +154,35 @@ export function BuilderClient(): React.ReactNode {
     [],
   );
 
+  const handleSave = useCallback(async (): Promise<void> => {
+    setSaveStatus('saving');
+    try {
+      const response = await fetch(`/api/builder-schemas/${schemaId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(schema),
+      });
+      if (!response.ok) {
+        setSaveStatus('error');
+        return;
+      }
+      lastSavedRef.current = JSON.stringify(schema);
+      setDirty(false);
+      setSaveStatus('saved');
+    } catch {
+      setSaveStatus('error');
+    }
+  }, [schema, schemaId]);
+
+  const handleDelete = useCallback(async (): Promise<void> => {
+    const confirmed = typeof window !== 'undefined' && window.confirm('Delete this form?');
+    if (!confirmed) return;
+    const response = await fetch(`/api/builder-schemas/${schemaId}`, { method: 'DELETE' });
+    if (response.ok) {
+      router.push('/builder');
+    }
+  }, [router, schemaId]);
+
   const previewSchema = useMemo(() => safeParseSchema(schema), [schema]);
 
   if (!isReady) {
@@ -152,9 +197,15 @@ export function BuilderClient(): React.ReactNode {
     <main className="ff-builder-page" data-ready="true">
       <BuilderToolbar
         title={schema.title}
+        schemaId={schemaId}
         onTitleChange={handleTitleChange}
         onOpenPreview={() => setPreviewOpen(true)}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        onBackToList={() => router.push('/builder')}
         schema={schema}
+        saveStatus={saveStatus}
+        dirty={dirty}
       />
 
       <div className="ff-builder-grid">

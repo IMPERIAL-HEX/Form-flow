@@ -1,21 +1,22 @@
-import type { FormSchema } from '@formflow/core';
+import type { SchemaPreset } from '@/lib/schemas/presetSchemas';
 
 import { LiveDemoClient } from './LiveDemoClient';
 import { SectionFrame } from './SectionFrame';
 
 interface LiveDemoSectionProps {
-  schema: FormSchema;
+  presets: SchemaPreset[];
+  initialPresetId: string;
 }
 
-export function LiveDemoSection({ schema }: LiveDemoSectionProps): React.ReactNode {
+export function LiveDemoSection({ presets, initialPresetId }: LiveDemoSectionProps): React.ReactNode {
   return (
     <SectionFrame
       id="live-demo"
       eyebrow="Live Demo"
-      title="Interact with a production-like education loan journey"
-      description="This is the same schema-driven renderer used in the standalone demo and embed mode."
+      title="Try it with any example flow"
+      description="Pick an example schema and interact with the same renderer used in the standalone demo and embed mode."
     >
-      <LiveDemoClient schema={schema} />
+      <LiveDemoClient presets={presets} initialPresetId={initialPresetId} />
     </SectionFrame>
   );
 }
