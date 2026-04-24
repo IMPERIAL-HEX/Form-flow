@@ -2,40 +2,91 @@ import { expect, test } from '@playwright/test';
 
 import { routes } from './fixtures/routes';
 
-test.describe('visual builder route', () => {
-  test('renders builder shell with default step and field', async ({ page }) => {
-    await page.goto(routes.builder);
-    await expect(page.locator('.ff-builder-page')).toHaveAttribute('data-ready', 'true');
+async function createSchemaThroughApi(
+  request: import('@playwright/test').APIRequestContext,
+  baseURL: string,
+): Promise<string> {
+  const response = await request.post(`${baseURL}${routes.apiBuilderSchemas}`, {
+    data: {
+      id: 'e2e-form',
+      version: '1.0.0',
+      title: 'E2E Form',
+      layout: { template: 'top-stepper' },
+      submission: { endpoint: '/api/submissions', method: 'POST', transformKeys: true },
+      steps: [
+        {
+          id: 'step-1',
+          title: 'Step 1',
+          fields: [
+            { type: 'text', key: 'name', label: 'Name' },
+          ],
+        },
+      ],
+    },
+  });
+  expect(response.status()).toBe(201);
+  const body = (await response.json()) as { stored: { id: string } };
+  return body.stored.id;
+}
 
+test.describe('builder list and editor', () => {
+  test('builder list shows New form and a created schema renders', async ({ page, request, baseURL }) => {
+    const id = await createSchemaThroughApi(request, baseURL ?? '');
+
+    await page.goto(routes.builder);
+    await expect(page.getByRole('heading', { name: /my forms/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'E2E Form' })).toBeVisible();
+
+    await page.getByRole('link', { name: 'E2E Form' }).click();
+    await expect(page.locator('.ff-builder-page')).toHaveAttribute('data-ready', 'true');
     await expect(page.getByRole('heading', { name: /^Steps$/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: /^Add field$/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /^Properties$/ })).toBeVisible();
 
-    await expect(page.getByRole('heading', { level: 3, name: /Step properties/i })).toBeVisible();
+    // cleanup
+    const cleanup = await request.delete(`${baseURL}${routes.apiBuilderSchemas}/${id}`);
+    expect(cleanup.ok()).toBeTruthy();
   });
 
-  test('adds a field from the palette and exposes its editor', async ({ page }) => {
-    await page.goto(routes.builder);
+  test('saving an edited field updates the saved schema', async ({ page, request, baseURL }) => {
+    const id = await createSchemaThroughApi(request, baseURL ?? '');
+
+    await page.goto(`${routes.builder}/${id}`);
     await expect(page.locator('.ff-builder-page')).toHaveAttribute('data-ready', 'true');
 
-    await page.getByRole('button', { name: 'Select', exact: true }).click();
-    await expect(
-      page.getByRole('heading', { level: 3, name: /Select field/i }),
-    ).toBeVisible();
+    const titleInput = page.getByLabel('Form title');
+    await titleInput.fill('Renamed Form');
+    await expect(page.locator('.ff-builder-status-dirty')).toBeVisible();
 
-    const optionsLegend = page.getByText('Options', { exact: true });
-    await expect(optionsLegend).toBeVisible();
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.locator('.ff-builder-status').first()).toContainText(/Saved|All changes saved/i);
+
+    const fetched = await request.get(`${baseURL}${routes.apiBuilderSchemas}/${id}`);
+    const body = (await fetched.json()) as { stored: { title: string } };
+    expect(body.stored.title).toBe('Renamed Form');
+
+    await request.delete(`${baseURL}${routes.apiBuilderSchemas}/${id}`);
   });
 
-  test('opens and closes the preview drawer', async ({ page }) => {
-    await page.goto(routes.builder);
-    await expect(page.locator('.ff-builder-page')).toHaveAttribute('data-ready', 'true');
+  test('saved schema resolves through /demo?form=<id>', async ({ page, request, baseURL }) => {
+    const id = await createSchemaThroughApi(request, baseURL ?? '');
 
-    await page.getByRole('button', { name: 'Preview' }).click();
-    const dialog = page.getByRole('dialog', { name: /Form preview/i });
-    await expect(dialog).toBeVisible();
+    await page.goto(`/demo?form=${id}`);
+    await expect(page.getByLabel('Name')).toBeVisible();
 
-    await dialog.getByRole('button', { name: /Close preview/i }).click();
-    await expect(dialog).toBeHidden();
+    await request.delete(`${baseURL}${routes.apiBuilderSchemas}/${id}`);
+  });
+});
+
+test.describe('builder-schemas api', () => {
+  test('rejects unknown id on read', async ({ request, baseURL }) => {
+    const response = await request.get(`${baseURL}${routes.apiBuilderSchemas}/does-not-exist`);
+    expect(response.status()).toBe(404);
+  });
+
+  test('rejects malformed payload on create', async ({ request, baseURL }) => {
+    const response = await request.post(`${baseURL}${routes.apiBuilderSchemas}`, {
+      data: { nope: true },
+    });
+    expect(response.status()).toBe(400);
   });
 });

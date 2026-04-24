@@ -13,7 +13,9 @@ export default async function DemoPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<React.ReactNode> {
   const resolved = searchParams ? await searchParams : undefined;
-  const schema = await loadFormSchema('education-loan');
+  const formParam = resolved?.form;
+  const requestedFormId = typeof formParam === 'string' && formParam ? formParam : 'education-loan';
+  const schema = await loadFormSchema(requestedFormId);
 
   if (!schema) {
     notFound();

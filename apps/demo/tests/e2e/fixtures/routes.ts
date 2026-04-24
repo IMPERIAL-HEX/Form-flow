@@ -12,4 +12,5 @@ export const routes = {
   apiKycVerify: '/api/kyc/verify',
   apiKycEvents: '/api/kyc/events',
   apiSessions: '/api/sessions',
+  apiBuilderSchemas: '/api/builder-schemas',
 } as const;

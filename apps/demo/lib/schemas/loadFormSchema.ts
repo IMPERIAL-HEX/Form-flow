@@ -5,6 +5,8 @@ import path from 'node:path';
 
 import { parseFormSchema, type FormSchema } from '@formflow/core';
 
+import { getSchema } from '@/lib/builder/schemaStore';
+
 const FORM_ID_PATTERN = /^[a-zA-Z0-9-]+$/;
 
 export function sanitizeFormId(raw: string): string | null {
@@ -22,6 +24,11 @@ export async function loadFormSchema(formId: string): Promise<Readonly<FormSchem
 
   if (!safeId) {
     return null;
+  }
+
+  const stored = getSchema(safeId);
+  if (stored) {
+    return stored.schema;
   }
 
   const schemaPath = path.join(process.cwd(), 'schemas', `${safeId}.json`);
