@@ -2,6 +2,8 @@ import './globals.css';
 
 import type { Metadata } from 'next';
 
+import { TopNav } from './components/TopNav';
+
 export const metadata: Metadata = {
   title: 'FormFlow | Schema-Driven Application Forms',
   description:
@@ -15,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
         <a href="#home-main" className="ff-skip-link">
           Skip to main content
         </a>
+        <TopNav />
         {children}
       </body>
     </html>
