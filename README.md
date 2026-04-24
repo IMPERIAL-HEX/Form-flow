@@ -1,6 +1,6 @@
 # FormFlow
 
-Schema-driven multi-step application forms for lending and regulated onboarding flows.
+Schema-driven multi-step forms for any data-collection workflow — intake forms, surveys, onboarding, applications, or anything else you can describe in JSON.
 
 ## What It Is
 
@@ -171,13 +171,13 @@ pnpm --filter @formflow/demo test:e2e:ui
 
 ## Why This Exists
 
-This project demonstrates a practical DSL-style runtime for financial form flows:
+This project demonstrates a practical DSL-style runtime for any multi-step form:
 
 1. Define once in JSON.
 2. Validate and execute conditions in a headless core.
 3. Render via reusable UI adapters.
 
-It is intentionally built as a portfolio-quality architecture that can evolve into hosted builders, analytics, and multi-framework SDKs.
+The included example schemas cover a contact intake, a customer feedback survey, and an education loan application to show the same runtime handling generic data collection, structured surveys, and long regulated flows. It is built as a portfolio-quality architecture that can evolve into hosted builders, analytics, and multi-framework SDKs.
 
 ## Project Status
 

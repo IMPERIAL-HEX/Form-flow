@@ -6,8 +6,8 @@ export function HeroSection(): React.ReactNode {
       <p className="ff-eyebrow">Schema-driven Form Runtime</p>
       <h1>Multi-step application forms, defined as data.</h1>
       <p>
-        FormFlow ships a headless TypeScript engine and React SDK for lending flows, onboarding, and
-        regulated financial journeys.
+        FormFlow is a headless TypeScript engine and React SDK for any multi-step data-collection
+        flow — intake forms, surveys, onboarding, applications, or anything else you define in JSON.
       </p>
       <div className="ff-home-actions">
         <Link href="#live-demo" className="ff-button ff-button-primary">
