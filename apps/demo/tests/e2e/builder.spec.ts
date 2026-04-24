@@ -5,12 +5,13 @@ import { routes } from './fixtures/routes';
 async function createSchemaThroughApi(
   request: import('@playwright/test').APIRequestContext,
   baseURL: string,
+  title: string,
 ): Promise<string> {
   const response = await request.post(`${baseURL}${routes.apiBuilderSchemas}`, {
     data: {
       id: 'e2e-form',
       version: '1.0.0',
-      title: 'E2E Form',
+      title,
       layout: { template: 'top-stepper' },
       submission: { endpoint: '/api/submissions', method: 'POST', transformKeys: true },
       steps: [
@@ -31,30 +32,30 @@ async function createSchemaThroughApi(
 
 test.describe('builder list and editor', () => {
   test('builder list shows New form and a created schema renders', async ({ page, request, baseURL }) => {
-    const id = await createSchemaThroughApi(request, baseURL ?? '');
+    const title = 'List Render Form';
+    const id = await createSchemaThroughApi(request, baseURL ?? '', title);
 
     await page.goto(routes.builder);
     await expect(page.getByRole('heading', { name: /my forms/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'E2E Form' })).toBeVisible();
+    await expect(page.getByRole('link', { name: title, exact: true })).toBeVisible();
 
-    await page.getByRole('link', { name: 'E2E Form' }).click();
+    await page.getByRole('link', { name: title, exact: true }).click();
     await expect(page.locator('.ff-builder-page')).toHaveAttribute('data-ready', 'true');
     await expect(page.getByRole('heading', { name: /^Steps$/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: /^Add field$/ })).toBeVisible();
 
-    // cleanup
     const cleanup = await request.delete(`${baseURL}${routes.apiBuilderSchemas}/${id}`);
     expect(cleanup.ok()).toBeTruthy();
   });
 
   test('saving an edited field updates the saved schema', async ({ page, request, baseURL }) => {
-    const id = await createSchemaThroughApi(request, baseURL ?? '');
+    const id = await createSchemaThroughApi(request, baseURL ?? '', 'Save Edit Form');
 
     await page.goto(`${routes.builder}/${id}`);
     await expect(page.locator('.ff-builder-page')).toHaveAttribute('data-ready', 'true');
 
     const titleInput = page.getByLabel('Form title');
-    await titleInput.fill('Renamed Form');
+    await titleInput.fill('Renamed Save Edit Form');
     await expect(page.locator('.ff-builder-status-dirty')).toBeVisible();
 
     await page.getByRole('button', { name: 'Save', exact: true }).click();
@@ -62,13 +63,13 @@ test.describe('builder list and editor', () => {
 
     const fetched = await request.get(`${baseURL}${routes.apiBuilderSchemas}/${id}`);
     const body = (await fetched.json()) as { stored: { title: string } };
-    expect(body.stored.title).toBe('Renamed Form');
+    expect(body.stored.title).toBe('Renamed Save Edit Form');
 
     await request.delete(`${baseURL}${routes.apiBuilderSchemas}/${id}`);
   });
 
   test('saved schema resolves through /demo?form=<id>', async ({ page, request, baseURL }) => {
-    const id = await createSchemaThroughApi(request, baseURL ?? '');
+    const id = await createSchemaThroughApi(request, baseURL ?? '', 'Demo Resolve Form');
 
     await page.goto(`/demo?form=${id}`);
     await expect(page.getByLabel('Name')).toBeVisible();
